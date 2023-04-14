@@ -95,11 +95,17 @@ public class HexTile : MonoBehaviour
             {
                 GameObject newTrees;
                 //if (hexInfo.terrain.getTerrainID() == 8) { newTrees = ForestTrees.instance.newTropForest(); }
-                if (hexInfo.elevation > 3f) { newTrees = ForestTrees.instance.newPineForest(); }
-                else { newTrees = ForestTrees.instance.newTempForest(); }
+                if (hexInfo.elevation > 3f) {
+                    newTrees = ForestTrees.instance.newPineForest();
+                    newTrees.transform.position = new Vector3(hexInfo.GetRealX(), (hexInfo.elevation * 2f) + 0.5f, hexInfo.GetRealY());
+                }
+                else {
+                    newTrees = ForestTrees.instance.newTempForest();
+                    newTrees.transform.position = new Vector3(hexInfo.GetRealX() + 0.5f, (hexInfo.elevation * 2f) + 0.5f, 
+                        hexInfo.GetRealY() - 1f);
+                }
 
                 //OPTIMIZE: perhaps no need to use getReals?
-                newTrees.transform.position = new Vector3(hexInfo.GetRealX(), (hexInfo.elevation * 2f) + 0.5f, hexInfo.GetRealY());
                 newTrees.transform.parent = transform;
             }
 

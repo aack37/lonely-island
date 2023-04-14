@@ -217,7 +217,8 @@ public class TerrainGen : MonoBehaviour
         //we should add small hills later as well
         SwampGeneration(3, 5, 5);
 
-        PlainGeneration(3, 5, 5, 0.3f);
+        PlainGeneration(3, 5, 5, 0.2f);
+        PlainGeneration(1, 1, 8, 0.4f);
 
         ForestyFinish(0.3f);
 

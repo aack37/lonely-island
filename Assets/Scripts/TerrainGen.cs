@@ -210,7 +210,8 @@ public class TerrainGen : MonoBehaviour
         //step 2: terrain polishing
         carveLakes(1, 2, 8); //add a couple big lakes...
         carveLakes(2, 5, 3); //and a few small ones...
-        BayGen(2, 4, 13);
+        BayGen(2, 4, 13, true);
+        BayGen(8, 20, 3, false);
         //PenGen(2, 4, 13);
 
         MountainBatchGeneration(3, 5, 7, 6);
@@ -472,7 +473,7 @@ public class TerrainGen : MonoBehaviour
     }
 
     //Bays are places where the ocean cuts into the coastline, forming a nice circular stretch of coast
-    void BayGen(int minAmount, int maxAmount, int averageSize)
+    void BayGen(int minAmount, int maxAmount, int averageSize, bool major)
     {
         int amount = Mathf.RoundToInt(minAmount + (maxAmount - minAmount) * Random.value);
         for (int i = 0; i < amount; i++)
@@ -533,7 +534,10 @@ public class TerrainGen : MonoBehaviour
                 }
             }
 
-            addNewNaturalFeature(tilesInThisBay, singles.getTerrain("OCEAN")); //now add the natural feature
+            if(major)
+            {
+                addNewNaturalFeature(tilesInThisBay, singles.getTerrain("OCEAN")); //now add the natural feature
+            }
         }
     }
 
@@ -829,7 +833,14 @@ public class TerrainGen : MonoBehaviour
         HexTile ht = g.GetComponent<HexTile>();
 
         ht.hexInfo = hexGrid[i, j];
-        await ht.readyToGo();
+        if(ht.hexInfo.terrain.getTerrainID() != 2) //don't bother creating ocean tiles anymore. that ship is sailed ;)
+        {
+            await ht.readyToGo();
+        } else
+        {
+            await Task.Yield();
+        }
+        
     }
 
     void lakeElevation() //find elevation of all lakes on the map

@@ -19,9 +19,9 @@ public class DebugEssentialStats : MonoBehaviour
         select.text = "Selected: " + "NONE";
 
         TerrainGen.regenerateWorld += GUINewWorld;
-        HexTile.tileHover += GUINewHoverTile;
-        HexTile.tileSelected += GUINewSelectedTile;
-        HexTile.tileSelected += DispSelectedTileStats;
+        TileClicker.tileHover += GUINewHoverTile;
+        TileClicker.tileSelected += GUINewSelectedTile;
+        TileClicker.tileSelected += DispSelectedTileStats;
     }
 
     void GUINewWorld(int newWorldSeed)

@@ -8,27 +8,23 @@ using System.Threading.Tasks;
 public class HexTile : MonoBehaviour
 {
     public HexInfo hexInfo;
-    public static event Action<HexTile> tileHover;
-    public static event Action<HexTile> tileSelected;
 
-    Material mat;
+    /*with a new change, hexTiles now can have a "base" and "top", to simulate topsoil and underground.
+     all hexTiles have a base by default.
+     some land hexTiles which have foliage will have a "top" tile.*/
+    private GameObject top;
+    private GameObject bottom;
+
+    Material topMat;
+    Material bottomMat;
 
     private void Awake()
     {
-        mat = GetComponent<MeshRenderer>().material;
+        bottom = transform.GetChild(0).gameObject;
+        top = null;
+
+        bottomMat = bottom.GetComponent<MeshRenderer>().material;
         //TerrainGen.regenerateWorld += onRegen;
-    }
-
-    private void OnMouseDown()
-    {
-        tileSelected?.Invoke(this);
-    }
-
-    private void OnMouseEnter()
-    {
-        //int offset = 0; if (hexInfo.GetX() % 2 == 0) offset = 2;
-        //selectionBeam.transform.position = new Vector3(hexInfo.GetX() * 3.5f,0,hexInfo.GetY() * 4 + offset);
-        tileHover?.Invoke(this);
     }
 
     public async Task readyToGo() //for async builds. build all tiles in the map as simultaneously as possible
@@ -41,8 +37,15 @@ public class HexTile : MonoBehaviour
 
             hexInfo.elevation = TerrainGen.getStep(hexInfo.elevation); //step elevation
 
-            //if the elevation happens to be high enough, it can be a mountain or even a snowy mountain
-            if (hexInfo.elevation >= 7)
+            //if the elevation happens to be high enough, it can be a (snowy) mountain, or cliff depending on coastal status
+            if (hexInfo.terrain.getTerrainID() == 4)
+            {
+                if(hexInfo.elevation >= 1.5f)
+                {
+                    hexInfo.terrain = TerrainGen.singles.getTerrain("CLIFF");
+                }
+            }
+            else if (hexInfo.elevation >= 7)
             {
                 if (hexInfo.elevation >= 10)
                 {
@@ -56,17 +59,36 @@ public class HexTile : MonoBehaviour
 
             //if(ht.hexInfo.isLakeCoastal) mat.color = Color.red; //DEBUGGING
             //else mat.color = ht.hexInfo.terrain.getColor(); //DEBUGGING
-            mat.color = hexInfo.terrain.getColor();
+            //mat.color = hexInfo.terrain.getColor();
 
             //land height determined by elevationStep (sea level is always 0.1)
             if (hexInfo.terrain.getTerrainID() != 2)
             {
-                transform.localScale = new Vector3(1, 0.75f, hexInfo.elevation);
+                bottom.transform.localScale = new Vector3(1, 0.75f, hexInfo.elevation);
             }
 
             //set position, now that we have elevation figured out!
             int zStarter = 0; if (hexInfo.GetX() % 2 == 0) zStarter = 2;
             transform.position = new Vector3(hexInfo.GetX() * 3.5f, hexInfo.elevation, zStarter + hexInfo.GetY() * 4);
+
+            //give topsoil, if applicable
+            if (TerrainGen.singles.hasTopsoil(hexInfo.terrain)) {
+                bottomMat.color = getBottomSoil(hexInfo.terrain);
+
+                top = Instantiate(bottom, transform); //instantiate as a copy of bottom under same parent
+                top.transform.localScale = new Vector3(1, 0.75f, 0.1f);
+
+                //local pos
+                Vector3 temp = top.transform.localPosition;
+                temp.y = hexInfo.elevation;
+                top.transform.localPosition = temp;
+
+                topMat = top.GetComponent<MeshRenderer>().material;
+                topMat.color = hexInfo.terrain.getColor(); //change material
+            } else
+            {
+                bottomMat.color = hexInfo.terrain.getColor();
+            }
 
             //the last step is making trees, if applicable.
             if (hexInfo.treeCover)
@@ -77,11 +99,24 @@ public class HexTile : MonoBehaviour
                 else { newTrees = ForestTrees.instance.newTempForest(); }
 
                 //OPTIMIZE: perhaps no need to use getReals?
-                newTrees.transform.position = new Vector3(hexInfo.GetRealX() - 1.75f, (hexInfo.elevation * 2f) + 0.5f, hexInfo.GetRealY() + 1f);
+                newTrees.transform.position = new Vector3(hexInfo.GetRealX(), (hexInfo.elevation * 2f) + 0.5f, hexInfo.GetRealY());
                 newTrees.transform.parent = transform;
             }
 
             await Task.Yield();
+        }
+    }
+
+    Color getBottomSoil(TerrainType topSoil)
+    {
+        int code = topSoil.getTerrainID();
+        switch (code)
+        {
+            case 3: return new Color(0.31f, 0.27f, 0.23f); //grassland = light brown
+            case 7: return new Color(0.5f, 0.5f, 0.5f); //snow = mountain
+            case 8: return new Color(0.23f, 0.22f, 0.20f); //swamp = dark brown
+            case 12: return new Color(0.65f, 0.56f, 0.44f); //plain = tinted brown
+            default: return new Color(0.2f, 0.2f, 0.2f); //grayscale
         }
     }
 

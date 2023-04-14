@@ -13,25 +13,23 @@ public class WorldMapManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        HexTile.tileHover += OnNewHover;
-        HexTile.tileSelected += OnNewSelection;
+        TileClicker.tileHover += OnNewHover;
+        TileClicker.tileSelected += OnNewSelection;
     }
 
     void OnNewHover(HexTile ht)
     {
         Vector3 temp = ht.transform.position;
-        temp.x = temp.x - 1.75f;
         temp.y = ht.hexInfo.elevation * 2 + 0.1f;
-        temp.z = temp.z + 1;
         HoverCircle.transform.position = temp;
     }
 
     void OnNewSelection(HexTile ht)
     {
         Vector3 temp = ht.transform.position;
-        temp.x = temp.x - 1.5f;
+        //temp.x = temp.x - 1.5f;
         temp.y = 20 + ht.hexInfo.elevation * 2;
-        temp.z = temp.z + 1f;
+        //temp.z = temp.z + 1f;
         SelectionBeam.transform.position = temp;
 
     }

@@ -25,6 +25,7 @@ public class TerrainTypesSingletons : MonoBehaviour
         terrainSingletons.Add(new RTerrainTForest());
         terrainSingletons.Add(new RTerrainTForest());
         terrainSingletons.Add(new RTerrainPlain());
+        terrainSingletons.Add(new RTerrainCliff());
     }
 
     public TerrainType getTerrain(int code)
@@ -50,6 +51,7 @@ public class TerrainTypesSingletons : MonoBehaviour
             case "PFOREST": code = 10; break;
             case "RFOREST": code = 11; break;
             case "PLAIN": code = 12; break;
+            case "CLIFF": code = 13; break;
             default: code = -1; Debug.Log("Something went wrong"); break;
         }
         return code;
@@ -78,4 +80,9 @@ public class TerrainTypesSingletons : MonoBehaviour
         return code <= 2;
     }
 
+    public bool hasTopsoil(TerrainType t)
+    {
+        int code = findCode(t);
+        return code == 3 || code == 7 || code == 8 || code == 12;
+    }
 }

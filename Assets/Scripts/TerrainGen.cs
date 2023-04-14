@@ -827,14 +827,14 @@ public class TerrainGen : MonoBehaviour
 
     async Task buildNewTile(int i, int j, int zStarter)
     {
-        GameObject g = Instantiate(hexTile);
-        //all new tiles are parents of the empty terrainGen object.
-        g.transform.parent = container.transform;
-        HexTile ht = g.GetComponent<HexTile>();
-
-        ht.hexInfo = hexGrid[i, j];
-        if(ht.hexInfo.terrain.getTerrainID() != 2) //don't bother creating ocean tiles anymore. that ship is sailed ;)
+        if(hexGrid[i,j].terrain.getTerrainID() != 2) //don't bother creating ocean tiles anymore. that ship is sailed ;)
         {
+            GameObject g = Instantiate(hexTile);
+            //all new tiles are parents of the empty terrainGen object.
+            g.transform.parent = container.transform;
+            HexTile ht = g.GetComponent<HexTile>();
+
+            ht.hexInfo = hexGrid[i, j];
             await ht.readyToGo();
         } else
         {

@@ -327,6 +327,7 @@ public class TerrainGen : MonoBehaviour
 
     }
 
+    //find lakes that happened to generate in Multi Stage (we don't want small inland "oceans".
     void LakeHunt(HexInfo lakeStart, int threshold)
     {
         Queue<HexInfo> queue = new Queue<HexInfo>();
@@ -415,11 +416,16 @@ public class TerrainGen : MonoBehaviour
         }
     }
 
+    //intentionally carve out a few lakes, which might become salty marshes instead.
+    //why this caveat? because it's easy to tell when you're forcing a lake to stay a lake...
     void carveLakes(int minAmount, int maxAmount, int averageSize)
     {
+        //how many to make?
         int amount = Mathf.RoundToInt(minAmount + (maxAmount - minAmount) * Random.value);
         for (int i = 0; i < amount; i++)
         {
+            bool isMarshInstead = false; //if we hit seawater, everything becomes a marsh instead.
+
             //get a random land tile and start carving out the lake.
             //yes, the arrays aren't entirely accurate...so we have to double check, but it's not a big deal!
             HexInfo startOfLake; int indexOfSOL;
@@ -444,6 +450,7 @@ public class TerrainGen : MonoBehaviour
             {
                 HexInfo currTile = queue.Dequeue(); //first, make the tile a lake
                 currTile.terrain = singles.getTerrain("LAKE");
+                if (currTile.isOceanCoastal) isMarshInstead = true;
                 //remove this if you want to easily identify which lakes were genned in this algorithm:
                 currTile.elevation = 0.1f;
                 currTile.inNaturalFeatures.Add(soonToBeIndex); //the tile is apart of a natural feature
@@ -455,7 +462,7 @@ public class TerrainGen : MonoBehaviour
                     if (!marked[n.GetX(), n.GetY()])
                     {
                         marked[n.GetX(), n.GetY()] = true;
-                        if (count < sizeOfThisLake && !n.isLakeCoastal && !n.isOceanCoastal)
+                        if (count < sizeOfThisLake && !n.isLakeCoastal)
                         {
                             queue.Enqueue(n);
                             count++;
@@ -468,6 +475,23 @@ public class TerrainGen : MonoBehaviour
                 }
             }
 
+            if (isMarshInstead) //convert everything to a bay if needed
+            {
+                foreach(HexInfo tile in tilesInThisLake)
+                {
+                    tile.terrain = singles.getTerrain("MARSH");
+                    tile.elevation = 0.1f;
+
+                    foreach (HexInfo n in tile.GetNeighbors())
+                    {
+                        if (n.isLakeCoastal)
+                        {
+                            n.isOceanCoastal = true;
+                            n.isLakeCoastal = false;
+                        }
+                    }
+                }
+            }
             addNewNaturalFeature(tilesInThisLake, singles.getTerrain("LAKE")); //now add the natural feature
         }
     }

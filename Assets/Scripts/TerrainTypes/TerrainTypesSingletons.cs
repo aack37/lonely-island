@@ -26,6 +26,7 @@ public class TerrainTypesSingletons : MonoBehaviour
         terrainSingletons.Add(new RTerrainTForest());
         terrainSingletons.Add(new RTerrainPlain());
         terrainSingletons.Add(new RTerrainCliff());
+        terrainSingletons.Add(new RTerrainMarsh());
     }
 
     public TerrainType getTerrain(int code)
@@ -52,6 +53,7 @@ public class TerrainTypesSingletons : MonoBehaviour
             case "RFOREST": code = 11; break;
             case "PLAIN": code = 12; break;
             case "CLIFF": code = 13; break;
+            case "MARSH": code = 14; break;
             default: code = -1; Debug.Log("Something went wrong"); break;
         }
         return code;

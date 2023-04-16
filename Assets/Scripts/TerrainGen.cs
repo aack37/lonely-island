@@ -102,7 +102,6 @@ public class TerrainGen : MonoBehaviour
     int zStarter = 0;
     async void InitialGridSetup()
     {
-
         //initialize each spot. (not random, always the same underlying grid)
         var tasks = new Task[gridWidth * gridHeight]; //build the tiles asyncally
 
@@ -173,7 +172,6 @@ public class TerrainGen : MonoBehaviour
         hexGrid[xx, yy] = new HexInfo(xx, yy); //initialize spot on grid with a new data object
         hexGrid[xx, yy].terrain = singles.getTerrain("UNDF1");
         await Task.Yield();
-        //Debug.Log("created this: " + hexGrid[xx, yy]);
     }
 
     // ---------------------------
@@ -238,7 +236,7 @@ public class TerrainGen : MonoBehaviour
         int centerX = Mathf.FloorToInt(Random.value * searchDistForCenter + gridWidth / 2 - searchDistForCenter / 2);
         int centerY = Mathf.FloorToInt(Random.value * searchDistForCenter + gridHeight / 2 - searchDistForCenter / 2);
 
-        Debug.Log("Center of: " + centerX + "," + centerY);
+        //Debug.Log("Center of: " + centerX + "," + centerY);
 
         //next, probability of land decreases with dist from center.
         Queue<HexInfo> process = new Queue<HexInfo>();
@@ -898,7 +896,6 @@ public class TerrainGen : MonoBehaviour
     void FinishingTouches()
     {
         UI_system.gameObject.SetActive(true);
-        Debug.Log("There were " + naturalFeatureRegions.Count + " lakes generated naturally");
     }
 
     //for rounding off elevation.
@@ -954,8 +951,6 @@ public class TerrainGen : MonoBehaviour
             newTag.rectTransform.localRotation = Quaternion.Euler(0, 0, 0);
             newTag.rectTransform.localPosition = new Vector3(centerSpot.centerX, centerSpot.centerY, -2 * maxElev - 1.1f);
             newTag.text = naturalFeatureTypes[i] + " " + i;
-            /*Debug.Log("IN FEATURE " + naturalFeatureTypes[i] + " " + i + ", found this many tiles: " + currFeature.Count);
-            Debug.Log("IN FEATURE " + naturalFeatureTypes[i] + " " + i + ", found this center: " + centerSpot);*/
         }
     }
 
@@ -964,10 +959,10 @@ public class TerrainGen : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Q) && !DEBUG_GENERATING)
         {
-            Debug.Log("Regen start");
+            //Debug.Log("Regen start");
             TerrainGeneration();
             regenerateWorld?.Invoke(worldSeed);
-            Debug.Log("Regen finish");
+            //Debug.Log("Regen finish");
         }
     }
 }

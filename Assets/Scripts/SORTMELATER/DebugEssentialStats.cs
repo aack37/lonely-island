@@ -14,7 +14,7 @@ public class DebugEssentialStats : MonoBehaviour
     
     void Awake()
     {
-        seed.text = "World Seed: " + terraGen.getSeed();
+        seed.text = "World Seed: " + TGenSettings.worldSeed;
         hover.text = "Hovering: " + "NONE";
         select.text = "Selected: " + "NONE";
 

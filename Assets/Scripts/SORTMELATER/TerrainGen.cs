@@ -6,10 +6,11 @@ using UnityEngine;
 
 public class TerrainGen : MonoBehaviour
 {
-    public const int gridWidth = 80;
-    public const int gridHeight = 60;
+    private static (int gridW, int gridH, int islandSize) mapSizeStats = TGenSettings.getMapSizeValues();
+    public static int gridWidth = mapSizeStats.gridW;
+    public static int gridHeight = mapSizeStats.gridH;
 
-    public static float elevationStep = 0.5f;
+    public static float elevationStep = TGenSettings.elevationStep;
 
     public static event System.Action<int> regenerateWorld;
 
@@ -19,7 +20,7 @@ public class TerrainGen : MonoBehaviour
 
     //used in generating initial grid...
     public GameObject hexTile;
-    public HexInfo[,] hexGrid = new HexInfo[gridWidth, gridHeight];
+    public HexInfo[,] hexGrid = new HexInfo[gridHeight, gridHeight];
     private bool[,] marked = new bool[gridWidth, gridHeight];
 
     private int worldSeed;
@@ -115,8 +116,8 @@ public class TerrainGen : MonoBehaviour
 
         await Task.WhenAll(tasks); //wait for all tiles to be done before proceeding
 
-        //get a world seed.
-        worldSeed = Mathf.FloorToInt(Random.Range(0, 999999));
+        //get the world seed.
+        worldSeed = TGenSettings.worldSeed;
         Random.InitState(worldSeed);
 
         //initialize all neighbors lists. i know it's inefficient, IDRC at the moment.
@@ -182,8 +183,6 @@ public class TerrainGen : MonoBehaviour
         DEBUG_GENERATING = true;
         //clear all tiles from the last try
         //TODO: REMOVE ---
-        worldSeed = Mathf.FloorToInt(Random.Range(0, 999999));
-        Random.InitState(worldSeed);
 
         for (int xx = 0; xx < gridWidth; xx++)
         {
@@ -201,9 +200,7 @@ public class TerrainGen : MonoBehaviour
         //TODO: REMOVE ABOVE ---
 
         //step 1: land and sea gen (make a blob of land to start)
-        MultiStageGeneration();
-        //MountainIslandGeneration();
-        //MountainStepGeneration();
+        MultiStageGeneration(mapSizeStats.islandSize);
 
         //step 2: terrain polishing
         carveLakes(1, 2, 8); //add a couple big lakes...
@@ -227,11 +224,11 @@ public class TerrainGen : MonoBehaviour
     }
 
     //Good old multi-stage, the same one we used in GMS.
-    void MultiStageGeneration()
+    void MultiStageGeneration(int maxPossibleDistAway)
     {
         //first, find the center of landmass
         const int searchDistForCenter = 2; //how far can each center be from the actual center of the grid?
-        const int maxPossibleDistAway = 30; //how far away can tiles be land?
+        //maxPossibleDistAway represents how far we allow the island to get out from the center (usually doesn't get this far)
 
         int centerX = Mathf.FloorToInt(Random.value * searchDistForCenter + gridWidth / 2 - searchDistForCenter / 2);
         int centerY = Mathf.FloorToInt(Random.value * searchDistForCenter + gridHeight / 2 - searchDistForCenter / 2);
@@ -457,7 +454,7 @@ public class TerrainGen : MonoBehaviour
 
                 foreach (HexInfo n in currTile.GetNeighbors())
                 {
-                    if (!marked[n.GetX(), n.GetY()])
+                    if (n != null && !marked[n.GetX(), n.GetY()])
                     {
                         marked[n.GetX(), n.GetY()] = true;
                         if (count < sizeOfThisLake && !n.isLakeCoastal)
@@ -482,7 +479,7 @@ public class TerrainGen : MonoBehaviour
 
                     foreach (HexInfo n in tile.GetNeighbors())
                     {
-                        if (n.isLakeCoastal)
+                        if (n != null && n.isLakeCoastal)
                         {
                             n.isOceanCoastal = true;
                             n.isLakeCoastal = false;
@@ -536,7 +533,7 @@ public class TerrainGen : MonoBehaviour
 
                 foreach (HexInfo n in currTile.GetNeighbors())
                 {
-                    if (!marked[n.GetX(), n.GetY()])
+                    if (n != null && !marked[n.GetX(), n.GetY()])
                     {
                         marked[n.GetX(), n.GetY()] = true;
                         if (n.terrain.getTerraGroup() != TerrainType.TerraGroup.WATER)
@@ -603,7 +600,7 @@ public class TerrainGen : MonoBehaviour
 
                 foreach (HexInfo n in currTile.GetNeighbors())
                 {
-                    if (!marked[n.GetX(), n.GetY()])
+                    if (n != null && !marked[n.GetX(), n.GetY()])
                     {
                         marked[n.GetX(), n.GetY()] = true;
                         if (n.terrain.getTerraGroup() == TerrainType.TerraGroup.WATER)
@@ -668,7 +665,7 @@ public class TerrainGen : MonoBehaviour
                 {
                     foreach (HexInfo n in currTile.GetNeighbors())
                     {
-                        if (!marked[n.GetX(), n.GetY()])
+                        if (n != null && !marked[n.GetX(), n.GetY()])
                         {
                             marked[n.GetX(), n.GetY()] = true;
                             if (n.terrain.getTerraGroup() != TerrainType.TerraGroup.WATER) //if it aint land, dont bother
@@ -725,7 +722,7 @@ public class TerrainGen : MonoBehaviour
                 {
                     foreach (HexInfo n in currTile.GetNeighbors())
                     {
-                        if (!marked[n.GetX(), n.GetY()])
+                        if (n != null && !marked[n.GetX(), n.GetY()])
                         {
                             marked[n.GetX(), n.GetY()] = true;
                             if (n.terrain.getTerraGroup() != TerrainType.TerraGroup.WATER && (Random.value < odds)
@@ -788,7 +785,7 @@ public class TerrainGen : MonoBehaviour
                 {
                     foreach (HexInfo n in currTile.GetNeighbors())
                     {
-                        if (!marked[n.GetX(), n.GetY()])
+                        if (n != null && !marked[n.GetX(), n.GetY()])
                         {
                             marked[n.GetX(), n.GetY()] = true;
                             if (n.terrain.getTerrainID() == 3 && (Random.value < odds)
@@ -960,6 +957,9 @@ public class TerrainGen : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Q) && !DEBUG_GENERATING)
         {
             //Debug.Log("Regen start");
+            worldSeed = Random.Range(0, 999999);
+            Random.InitState(worldSeed);
+
             TerrainGeneration();
             regenerateWorld?.Invoke(worldSeed);
             //Debug.Log("Regen finish");

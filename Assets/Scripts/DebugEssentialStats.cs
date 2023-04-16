@@ -22,6 +22,7 @@ public class DebugEssentialStats : MonoBehaviour
         TileClicker.tileHover += GUINewHoverTile;
         TileClicker.tileSelected += GUINewSelectedTile;
         TileClicker.tileSelected += DispSelectedTileStats;
+        OceanHexFinder.oceanTileSelected += GUINewSelectedTile;
     }
 
     void GUINewWorld(int newWorldSeed)
@@ -37,6 +38,11 @@ public class DebugEssentialStats : MonoBehaviour
     void GUINewSelectedTile(HexTile ht)
     {
         select.text = "Selected: " + ht.hexInfo;
+    }
+
+    void GUINewSelectedTile(HexInfo ht)
+    {
+        select.text = "Selected: " + ht;
     }
 
     void DispSelectedTileStats(HexTile ht)

@@ -68,8 +68,9 @@ public class HexTile : MonoBehaviour
             }
 
             //set position, now that we have elevation figured out!
-            int zStarter = 0; if (hexInfo.GetX() % 2 == 0) zStarter = 2;
-            transform.position = new Vector3(hexInfo.GetX() * 3.5f, hexInfo.elevation, zStarter + hexInfo.GetY() * 4);
+            transform.position = new Vector3(hexInfo.GetRealX(), hexInfo.elevation, hexInfo.GetRealY());
+            //int zStarter = 0; if (hexInfo.GetX() % 2 == 0) zStarter = 2;
+            //transform.position = new Vector3(hexInfo.GetX() * 3.5f, hexInfo.elevation, zStarter + hexInfo.GetY() * 4);
 
             //give topsoil, if applicable
             if (TerrainGen.singles.hasTopsoil(hexInfo.terrain)) {

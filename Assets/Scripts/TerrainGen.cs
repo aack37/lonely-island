@@ -477,7 +477,7 @@ public class TerrainGen : MonoBehaviour
 
             if (isMarshInstead) //convert everything to a bay if needed
             {
-                foreach(HexInfo tile in tilesInThisLake)
+                foreach (HexInfo tile in tilesInThisLake)
                 {
                     tile.terrain = singles.getTerrain("MARSH");
                     tile.elevation = 0.1f;
@@ -492,7 +492,10 @@ public class TerrainGen : MonoBehaviour
                     }
                 }
             }
-            addNewNaturalFeature(tilesInThisLake, singles.getTerrain("LAKE")); //now add the natural feature
+            else
+            {
+                addNewNaturalFeature(tilesInThisLake, singles.getTerrain("LAKE")); //now add the natural feature
+            }
         }
     }
 

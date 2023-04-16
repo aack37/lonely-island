@@ -15,6 +15,7 @@ public class WorldMapManager : MonoBehaviour
     {
         TileClicker.tileHover += OnNewHover;
         TileClicker.tileSelected += OnNewSelection;
+        OceanHexFinder.oceanTileSelected += OnNewOceanSelection;
     }
 
     void OnNewHover(HexTile ht)
@@ -33,6 +34,13 @@ public class WorldMapManager : MonoBehaviour
         SelectionBeam.transform.position = temp;
 
     }
+
+    void OnNewOceanSelection(HexInfo hi)
+    {
+        Vector3 temp = new Vector3(hi.GetRealX(), 10f, hi.GetRealY());
+        SelectionBeam.transform.position = temp;
+    }
+
 
     // Update is called once per frame
     void Update()

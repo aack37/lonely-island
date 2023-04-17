@@ -9,18 +9,11 @@ public class OceanHexFinder : MonoBehaviour
     public static event Action<HexInfo> oceanTileHover;
     public static event Action<HexInfo> oceanTileSelected;
 
-    private TerrainGen terraGenScript;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        terraGenScript = FindObjectOfType<TerrainGen>();
-    }
 
     private void OnMouseDown()
     {
         (int xC, int yC) coords = getOceanCoordinates();
-        oceanTileSelected?.Invoke(terraGenScript.hexGrid[coords.xC, coords.yC]);
+        oceanTileSelected?.Invoke(TerrainGen.hexGrid[coords.xC, coords.yC]);
     }
 
     private void OnMouseEnter()

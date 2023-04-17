@@ -20,7 +20,7 @@ public class TerrainGen : MonoBehaviour
 
     //used in generating initial grid...
     public GameObject hexTile;
-    public HexInfo[,] hexGrid = new HexInfo[gridHeight, gridHeight];
+    public static HexInfo[,] hexGrid = new HexInfo[gridHeight, gridHeight];
     private bool[,] marked = new bool[gridWidth, gridHeight];
 
     private int worldSeed;

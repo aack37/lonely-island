@@ -50,7 +50,6 @@ public class DebugEssentialStats : MonoBehaviour
         string tempStr = ""; HexInfo hs = ht.hexInfo;
         tempStr = tempStr + "SELECTED ---> " + hs + "\n";
         tempStr = tempStr + "Terrain: " + hs.terrain + "\n";
-        tempStr = tempStr + "Tile seed: " + hs.getTileSeed() + "\n";
         tempStr = tempStr + "Tree Cover: " + hs.treeCover + "\n";
         tempStr = tempStr + "Elevation: " + hs.elevation + "\n";
         tempStr = tempStr + "Ocean Coastal: " + hs.isOceanCoastal + "\n";

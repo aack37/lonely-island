@@ -10,6 +10,7 @@ public class MultiChoice : MonoBehaviour
     private Dictionary<Button, int> buttonMaps;
     private Image[] imageComps;
     public int currChosen;
+    public int defaultChoice;
 
     // Start is called before the first frame update
     void Start()
@@ -25,14 +26,8 @@ public class MultiChoice : MonoBehaviour
             imageComps[i] = choices[i].GetComponent<Image>();
         }
 
-        currChosen = 0;
-        choose(choices[0]);
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        currChosen = defaultChoice;
+        choose(choices[defaultChoice]);
     }
 
     void choose(Button b)

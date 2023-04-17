@@ -45,9 +45,9 @@ public class HexTile : MonoBehaviour
                     hexInfo.terrain = TerrainGen.singles.getTerrain("CLIFF");
                 }
             }
-            else if (hexInfo.elevation >= 7)
+            else if (hexInfo.terrain.getTerrainID() != 5 && hexInfo.elevation >= TGenSettings.mtnHeight) //overwrite anything but lakes
             {
-                if (hexInfo.elevation >= 10)
+                if (hexInfo.elevation >= TGenSettings.snowHeight)
                 {
                     hexInfo.terrain = TerrainGen.singles.getTerrain("SNOW");
                 }
@@ -95,19 +95,24 @@ public class HexTile : MonoBehaviour
             if (hexInfo.treeCover)
             {
                 GameObject newTrees;
-                //if (hexInfo.terrain.getTerrainID() == 8) { newTrees = ForestTrees.instance.newTropForest(); }
-                if (hexInfo.elevation > 3f) {
-                    newTrees = ForestTrees.instance.newPineForest();
-                    newTrees.transform.position = new Vector3(hexInfo.GetRealX(), (hexInfo.elevation * 2f) + 0.5f, hexInfo.GetRealY());
-                }
-                else {
-                    newTrees = ForestTrees.instance.newTempForest();
-                    newTrees.transform.position = new Vector3(hexInfo.GetRealX() + 0.5f, (hexInfo.elevation * 2f) + 0.5f, 
-                        hexInfo.GetRealY() - 1f);
-                }
+                //trees no longer generate on mountains
+                //if (hexInfo.elevation < TGenSettings.mtnHeight)
+                //{
+                    if (hexInfo.elevation > TGenSettings.pineLine)
+                    {
+                        newTrees = ForestTrees.instance.newPineForest();
+                        newTrees.transform.position = new Vector3(hexInfo.GetRealX(), (hexInfo.elevation * 2f) + 0.5f, hexInfo.GetRealY());
+                    }
+                    else
+                    {
+                        newTrees = ForestTrees.instance.newTempForest();
+                        newTrees.transform.position = new Vector3(hexInfo.GetRealX() + 0.5f, (hexInfo.elevation * 2f) + 0.5f,
+                            hexInfo.GetRealY() - 1f);
+                    }
 
-                //OPTIMIZE: perhaps no need to use getReals?
-                newTrees.transform.parent = transform;
+                    //OPTIMIZE: perhaps no need to use getReals?
+                    newTrees.transform.parent = transform;
+                //}
             }
 
             await Task.Yield();

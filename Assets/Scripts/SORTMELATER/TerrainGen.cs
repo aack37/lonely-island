@@ -203,20 +203,30 @@ public class TerrainGen : MonoBehaviour
         MultiStageGeneration(mapSizeStats.islandSize);
 
         //step 2: terrain polishing
-        carveLakes(1, 2, 8); //add a couple big lakes...
-        carveLakes(2, 5, 3); //and a few small ones...
-        BayGen(2, 4, 13, true);
-        BayGen(8, 20, 3, false);
+        int mapSizeMult = TGenSettings.mapSize + 1;
+
+        //LAKES AND BAYS
+        if (mapSizeMult - 1 > 0) carveLakes(1, 2, 8); //add a couple big lakes...
+        carveLakes(2, 2 + mapSizeMult, 3); //and a few small ones...
+        if (mapSizeMult - 1 > 0) BayGen(2, 4, 13, true); //add big bays, unless its a small map
+        BayGen(2 + mapSizeMult * 2, 2 + mapSizeMult * 5, 3, false);
         //PenGen(2, 4, 13);
 
-        MountainBatchGeneration(3, 5, 7, 6);
+        //MOUNTAINS
+        if (TGenSettings.enabledBiomes[1])
+            MountainBatchGeneration(mapSizeMult, mapSizeMult * 2, mapSizeMult * 3, 3 + mapSizeMult);
         //we should add small hills later as well
-        SwampGeneration(3, 5, 5);
 
-        PlainGeneration(3, 5, 5, 0.2f);
-        PlainGeneration(1, 1, 8, 0.4f);
+        //SWAMPS, PLAINS
+        if(TGenSettings.enabledBiomes[2]) SwampGeneration(mapSizeMult, 3 + mapSizeMult, mapSizeMult * 2);
 
-        ForestyFinish(0.3f);
+        if (TGenSettings.enabledBiomes[3])
+        {
+            PlainGeneration(1 + mapSizeMult, 3 + mapSizeMult, 1 + mapSizeMult, 0.2f);
+            if (mapSizeMult - 1 > 0) PlainGeneration(1, 1, 8, 0.4f);
+        }
+
+        if (TGenSettings.enabledBiomes[0]) ForestyFinish(TGenSettings.forestDensity);
 
         TranslateToRealWorld();
         FinishingTouches();
@@ -893,6 +903,9 @@ public class TerrainGen : MonoBehaviour
     void FinishingTouches()
     {
         UI_system.gameObject.SetActive(true);
+
+        //feature names ON setting
+        if (TGenSettings.featureNamesOn) featureNametag.rectTransform.parent.parent.gameObject.SetActive(true);
     }
 
     //for rounding off elevation.

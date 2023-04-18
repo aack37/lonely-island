@@ -36,6 +36,8 @@ public class TerrainGen : MonoBehaviour
     public TextMeshProUGUI featureNametag;
     private List<GameObject> gennedNametags;
 
+    //the final action of TerrainGen is waking up the PopGen script (which adds units and structures into the world)
+    public PopGen popgen;
 
     void resetBigLists()
     {
@@ -229,7 +231,6 @@ public class TerrainGen : MonoBehaviour
         if (TGenSettings.enabledBiomes[0]) ForestyFinish(TGenSettings.forestDensity);
 
         TranslateToRealWorld();
-        FinishingTouches();
         DEBUG_GENERATING = false;
     }
 
@@ -854,6 +855,7 @@ public class TerrainGen : MonoBehaviour
         await Task.WhenAll(tasks);
 
         labelNaturalFeatures();
+        FinishingTouches();
 
     }
 
@@ -867,7 +869,7 @@ public class TerrainGen : MonoBehaviour
             HexTile ht = g.GetComponent<HexTile>();
 
             ht.hexInfo = hexGrid[i, j];
-            await ht.readyToGo();
+            hexGrid[i,j] = await ht.readyToGo(); //some properties change in the final build!
         } else
         {
             await Task.Yield();
@@ -906,6 +908,11 @@ public class TerrainGen : MonoBehaviour
 
         //feature names ON setting
         if (TGenSettings.featureNamesOn) featureNametag.rectTransform.parent.parent.gameObject.SetActive(true);
+
+        //done.
+        popgen.gameObject.SetActive(true);
+        //TODO: when we're tired of regenerating, we can destroy the script altogether
+        //Destroy(this);
     }
 
     //for rounding off elevation.

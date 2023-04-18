@@ -27,7 +27,7 @@ public class HexTile : MonoBehaviour
         //TerrainGen.regenerateWorld += onRegen;
     }
 
-    public async Task readyToGo() //for async builds. build all tiles in the map as simultaneously as possible
+    public async Task<HexInfo> readyToGo() //for async builds. build all tiles in the map as simultaneously as possible
     {
         await Task.Yield();
         if (hexInfo == null) throw new Exception("The tile stats were not yet specified");
@@ -73,7 +73,7 @@ public class HexTile : MonoBehaviour
             //transform.position = new Vector3(hexInfo.GetX() * 3.5f, hexInfo.elevation, zStarter + hexInfo.GetY() * 4);
 
             //give topsoil, if applicable
-            if (TerrainGen.singles.hasTopsoil(hexInfo.terrain)) {
+            if (TerrainTypesSingletons.hasTopsoil(hexInfo.terrain)) {
                 bottomMat.color = getBottomSoil(hexInfo.terrain);
 
                 top = Instantiate(bottom, transform); //instantiate as a copy of bottom under same parent
@@ -116,6 +116,7 @@ public class HexTile : MonoBehaviour
             }
 
             await Task.Yield();
+            return hexInfo;
         }
     }
 

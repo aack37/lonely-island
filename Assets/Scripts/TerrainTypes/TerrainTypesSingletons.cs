@@ -6,7 +6,7 @@ public class TerrainTypesSingletons : MonoBehaviour
 {
     //this class instantiates the singletons that represent terrain types.
     public int numTerrainTypes = 12; // UPDATE AS YOU ADD MORE TERRAIN TYPES
-    private List<TerrainType> terrainSingletons;
+    private static List<TerrainType> terrainSingletons;
 
     // Start is called before the first frame update
     void Start()
@@ -65,7 +65,7 @@ public class TerrainTypesSingletons : MonoBehaviour
         return getTerrain(code);
     }
 
-    private int findCode(TerrainType t)
+    private static int findCode(TerrainType t)
     {
         return terrainSingletons.IndexOf(t);
     }
@@ -82,7 +82,7 @@ public class TerrainTypesSingletons : MonoBehaviour
         return code <= 2;
     }
 
-    public bool hasTopsoil(TerrainType t)
+    public static bool hasTopsoil(TerrainType t)
     {
         int code = findCode(t);
         return code == 3 || code == 7 || code == 8 || code == 12;

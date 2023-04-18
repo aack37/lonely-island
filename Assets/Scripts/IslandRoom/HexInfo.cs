@@ -71,6 +71,14 @@ public class HexInfo
         if (xCoords % 2 == 0) return yCoords * 4 + 2;
         else return yCoords * 4;
     }
+    public float GetStanding() //return the point at which a unit / structure would stand on this tile
+    {
+        if (TerrainTypesSingletons.hasTopsoil(terrain))
+        {
+            return elevation * 2 + 0.2f;
+        }
+        else return elevation * 2;
+    }
 
     public void updateCoastals()
     {

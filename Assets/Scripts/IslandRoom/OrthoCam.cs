@@ -14,7 +14,7 @@ public class OrthoCam : MonoBehaviour
     [SerializeField]
     bool strategicView = false;
 
-    float minZoom = 20;
+    float minZoom = 10;
     float maxZoom = 50;
     float zoomFactor = 5;
     float currZoom = 40;
@@ -76,39 +76,37 @@ public class OrthoCam : MonoBehaviour
             if (accumTime > finishTime) panup = false;
         }
 
-        if (strategicView)
+
+        if (Input.GetKey(KeyCode.W))
         {
-            if (Input.GetKey(KeyCode.W))
-            {
-                //transform.parent.Translate(new Vector3(0, 0, moveSpeed));
-                Vector3 tempPos = transform.parent.position;
-                tempPos.z = tempPos.z + moveSpeed;
-                transform.parent.position = tempPos;
-            }
+            //transform.parent.Translate(new Vector3(0, 0, moveSpeed));
+            Vector3 tempPos = transform.parent.position;
+            tempPos.z = tempPos.z + moveSpeed;
+            transform.parent.position = tempPos;
+        }
 
-            if (Input.GetKey(KeyCode.S))
-            {
-                //transform.parent.Translate(new Vector3(0, 0, -1 * moveSpeed));
-                Vector3 tempPos = transform.parent.position;
-                tempPos.z = tempPos.z - moveSpeed;
-                transform.parent.position = tempPos;
-            }
+        if (Input.GetKey(KeyCode.S))
+        {
+            //transform.parent.Translate(new Vector3(0, 0, -1 * moveSpeed));
+            Vector3 tempPos = transform.parent.position;
+            tempPos.z = tempPos.z - moveSpeed;
+            transform.parent.position = tempPos;
+        }
 
-            if (Input.GetKey(KeyCode.D))
-            {
-                //transform.parent.Translate(new Vector3(moveSpeed, 0, 0));
-                Vector3 tempPos = transform.parent.position;
-                tempPos.x = tempPos.x + moveSpeed;
-                transform.parent.position = tempPos;
-            }
+        if (Input.GetKey(KeyCode.D))
+        {
+            //transform.parent.Translate(new Vector3(moveSpeed, 0, 0));
+            Vector3 tempPos = transform.parent.position;
+            tempPos.x = tempPos.x + moveSpeed;
+            transform.parent.position = tempPos;
+        }
 
-            if (Input.GetKey(KeyCode.A))
-            {
-                //transform.parent.Translate(new Vector3(-1 * moveSpeed, 0, 0));
-                Vector3 tempPos = transform.parent.position;
-                tempPos.x = tempPos.x - moveSpeed;
-                transform.parent.position = tempPos;
-            }
+        if (Input.GetKey(KeyCode.A))
+        {
+            //transform.parent.Translate(new Vector3(-1 * moveSpeed, 0, 0));
+            Vector3 tempPos = transform.parent.position;
+            tempPos.x = tempPos.x - moveSpeed;
+            transform.parent.position = tempPos;
         }
 
         //reset to center of rotation

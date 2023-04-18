@@ -12,27 +12,45 @@ a unit and a structure can be on the same tile at the same time, but you can't h
 
 public class UnitPiece : MonoBehaviour
 {
-    private HexInfo currTile;
-    //public UnitStats stats;
+    //stores all unit stats.
+    public UnitStats stats;
 
-    public void setCurrTile(HexInfo hi)
+    //spawn a new unit into the game world. instantiates it with necessary properties here.
+    public static UnitPiece spawnUnitPiece(UnitPiece template, HexInfo spawnTile)
     {
-        currTile = hi;
+        if (spawnTile.unit == null) //do not spawn the piece if something is already on the tile.
+        {
+            UnitPiece piece = Instantiate(template);
+            piece.setCurrTile(spawnTile);
+            return piece;
+        } else
+        {
+            return null;
+        }
+        
     }
 
-    public HexInfo getCurrTile()
+    //set a new position for the unit. since hexInfo's store UnitPieces, not UnitStats, we deal with this here
+    public void setCurrTile(HexInfo hi)
     {
-        return currTile;
+        stats.setCurrTile(hi);
+        hi.unit = this;
+        resetWorldPos();
     }
 
     public void resetWorldPos() //set the unit's world position to its current set of coordinates
     {
-        transform.position = new Vector3(currTile.GetRealX(), currTile.elevation + 0.2f, currTile.GetRealY());
+        transform.position = new Vector3(stats.currTile.GetRealX(), stats.currTile.GetStanding(), stats.currTile.GetRealY());
     }
 
     public void resetWorldPos(int xC, int yC) //set the unit's world position to a new set of coordinates
     {
-        if(yC % 2 == 0) { transform.position = new Vector3(xC * 3.5f, TerrainGen.hexGrid[xC, yC].elevation, yC * 4f + 2); }
-        else { transform.position = new Vector3(xC * 3.5f, TerrainGen.hexGrid[xC, yC].elevation, yC * 4f); }
+        if(yC % 2 == 0) { transform.position = new Vector3(xC * 3.5f, TerrainGen.hexGrid[xC, yC].elevation * 2, yC * 4f + 2); }
+        else { transform.position = new Vector3(xC * 3.5f, TerrainGen.hexGrid[xC, yC].elevation * 2, yC * 4f); }
+    }
+
+    public override string ToString()
+    {
+        return stats.ToString();
     }
 }

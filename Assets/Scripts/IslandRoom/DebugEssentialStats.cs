@@ -59,6 +59,7 @@ public class DebugEssentialStats : MonoBehaviour
         {
             tempStr = tempStr + feat + ",";
         }
+        tempStr = tempStr + "\n" + "Unit: " + hs.unit;
         selectedFullStats.text = tempStr;
     }
 

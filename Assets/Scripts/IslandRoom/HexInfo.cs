@@ -63,6 +63,18 @@ public class HexInfo
         inNaturalFeatures.Clear();
     }
 
+    //start using this from now on, to get the position that would put an object ON TOP OF a tile...with left corner coords.
+    public Vector3 getOnTopOfLC()
+    {
+        return new Vector3(GetRealX() + 1.75f, GetStanding(), GetRealY() - 1);
+    }
+
+    //to get the position that would put an object ON TOP OF a tile...with centered coords
+    public Vector3 getOnTopOfCenter()
+    {
+        return new Vector3(GetRealX(), GetStanding(), GetRealY());
+    }
+
     public int GetX() { return xCoords; }
     public int GetY() { return yCoords; }
 

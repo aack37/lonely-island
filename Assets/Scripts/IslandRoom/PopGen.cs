@@ -8,6 +8,7 @@ using UnityEngine;
 public class PopGen : MonoBehaviour
 {
     public UnitPiece unitTemplates;
+    public GameObject moveManager;
     private HexInfo[,] hexaGrid;
     //only run the script when TerrainGen is finished (TerrainGen will wake this script up as its final action.)
     void Awake()
@@ -25,7 +26,8 @@ public class PopGen : MonoBehaviour
                     Mathf.FloorToInt(Random.value * 10 + TerrainGen.gridWidth / 2));
             UnitPiece.spawnUnitPiece(unitTemplates, hexaGrid[coords.xC, coords.yC]);
         }
+
+        moveManager.SetActive(true);
     }
 
-    
 }

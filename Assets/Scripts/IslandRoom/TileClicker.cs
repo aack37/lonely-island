@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
+//this script handles when a tile (hexTile) is actually clicked.
 public class TileClicker : MonoBehaviour
 {
     public static event Action<HexTile> tileHover;
     public static event Action<HexTile> tileSelected;
+    public static event Action<HexInfo> unitSelected;
 
     private HexTile hexTile;
 
@@ -18,6 +20,7 @@ public class TileClicker : MonoBehaviour
     private void OnMouseDown()
     {
         tileSelected?.Invoke(hexTile);
+        unitSelected?.Invoke(hexTile.hexInfo);
     }
 
     private void OnMouseEnter()

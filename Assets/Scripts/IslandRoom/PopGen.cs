@@ -10,21 +10,29 @@ public class PopGen : MonoBehaviour
     public UnitPiece unitTemplates;
     public GameObject moveManager;
     private HexInfo[,] hexaGrid;
+
+    //TODO: replace with something more elegant
+    private GameObject container;
+
     //only run the script when TerrainGen is finished (TerrainGen will wake this script up as its final action.)
     void Awake()
     {
-        
+        container = new GameObject();
+        container.name = "UnitContainer";
+
         hexaGrid = TerrainGen.hexGrid;
         spawnUnitsRandomly();
     }
 
     void spawnUnitsRandomly()
     {
-        for(int i = 0; i < 20; i++)
+        Faction defender = FactionManager.factions[0];
+        for (int i = 0; i < 20; i++)
         {
             (int xC, int yC) coords = (Mathf.FloorToInt(Random.value * 10 + TerrainGen.gridWidth / 2),
                     Mathf.FloorToInt(Random.value * 10 + TerrainGen.gridWidth / 2));
-            UnitPiece.spawnUnitPiece(unitTemplates, hexaGrid[coords.xC, coords.yC]);
+            UnitPiece p = defender.spawnUnitPiece(unitTemplates, hexaGrid[coords.xC, coords.yC]);
+            //if(p != null) p.transform.parent = container.transform;
         }
 
         moveManager.SetActive(true);

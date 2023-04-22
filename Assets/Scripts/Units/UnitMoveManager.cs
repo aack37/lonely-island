@@ -10,6 +10,9 @@ using UnityEngine;
  - global movement factors can be implemented this way, such as rain making everything muddy*/
 public class UnitMoveManager : MonoBehaviour
 {
+    //the currently selected unit (by the player).
+    public static UnitPiece selectedUnit;
+
     //funny enough, we don't need the hexaGrid for this class
 
     //these things are used in displaying tiles you can move to
@@ -29,17 +32,23 @@ public class UnitMoveManager : MonoBehaviour
         onceVisited = new HashSet<HexInfo>(); lockedIn = new HashSet<HexInfo>();
         dijkstraInfo = new Dictionary<HexInfo, (float dist, HexInfo tile)>();
         TileClicker.unitSelected += showMoveOpportunities;
+        MoveTileClicker.unitMoved += moveSelectedUnit;
 
         container = new GameObject();
+    }
+
+    //moves a unit from one location to another.
+    void moveSelectedUnit(HexInfo dest)
+    {
+        selectedUnit.setCurrTile(dest);
+        resetMoveOpportunities();
     }
 
     //spawn the blue tiles that show where the current unit can move.
     void showMoveOpportunities(HexInfo start)
     {
         //delete everything when a new tile gets selected
-        Destroy(container);
-        container = new GameObject();
-        container.name = "MoveOppCont";
+        resetMoveOpportunities();
 
         //if there's a unit here, run the stuff
         if (start.unit != null)
@@ -50,6 +59,8 @@ public class UnitMoveManager : MonoBehaviour
                 GameObject curr = Instantiate(movementShowTemp);
                 curr.transform.position = movable.getOnTopOfLC();
                 curr.transform.parent = container.transform;
+                curr.GetComponent<MoveTileClicker>().hexInfo = movable;
+                curr.SetActive(true);
             }
         }
     }
@@ -67,6 +78,7 @@ public class UnitMoveManager : MonoBehaviour
 
         //get critical values
         UnitPiece unitMoving = start.unit;
+        selectedUnit = unitMoving;
         float maxMovement = unitMoving.stats.maxMovement;
 
         //BEGIN
@@ -144,5 +156,13 @@ public class UnitMoveManager : MonoBehaviour
     private static float getTrueMoveCost(HexInfo start, HexInfo finish)
     {
         return finish.terrain.getMoveCost() * Mathf.Max(1 + getElevationChange(start, finish), 0.75f);
+    }
+
+    //get rid of all the blue hexes showing where you can move
+    private void resetMoveOpportunities()
+    {
+        Destroy(container);
+        container = new GameObject();
+        container.name = "MoveOppCont";
     }
 }

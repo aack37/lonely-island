@@ -220,9 +220,9 @@ public class TerrainGen : MonoBehaviour
         //we should add small hills later as well
 
         //SWAMPS, PLAINS
-        if(TGenSettings.enabledBiomes[2]) SwampGeneration(mapSizeMult, 3 + mapSizeMult, mapSizeMult * 2);
+        if(TGenSettings.enabledBiomes[3]) SwampGeneration(mapSizeMult, 3 + mapSizeMult, mapSizeMult * 2);
 
-        if (TGenSettings.enabledBiomes[3])
+        if (TGenSettings.enabledBiomes[2])
         {
             PlainGeneration(1 + mapSizeMult, 3 + mapSizeMult, 1 + mapSizeMult, 0.2f);
             if (mapSizeMult - 1 > 0) PlainGeneration(1, 1, 8, 0.4f);

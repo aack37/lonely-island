@@ -12,6 +12,7 @@ public class UnitStats : MonoBehaviour
     public float maxMovement;
 
     //other stats
+    public Faction faction;
     public string unitName = "Unit";
 
     //when going to a new position, the unit moves from one tile to another.

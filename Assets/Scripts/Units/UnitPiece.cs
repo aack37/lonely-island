@@ -14,21 +14,29 @@ public class UnitPiece : MonoBehaviour
 {
     //stores all unit stats.
     public UnitStats stats;
+    Material[] mats;
+
+    private void Start()
+    {
+        //because pieces are copies of templates they start off with the same materials.
+        //mats = GetComponents<Material>();
+    }
 
     //spawn a new unit into the game world. instantiates it with necessary properties here.
-    public static UnitPiece spawnUnitPiece(UnitPiece template, HexInfo spawnTile)
+    /*public static UnitPiece spawnUnitPiece(UnitPiece template, HexInfo spawnTile, Faction fact)
     {
         if (spawnTile.unit == null) //do not spawn the piece if something is already on the tile.
         {
             UnitPiece piece = Instantiate(template);
             piece.setCurrTile(spawnTile);
+            assignFaction(fact);
             return piece;
         } else
         {
             return null;
         }
         
-    }
+    }*/
 
     //set a new position for the unit. since hexInfo's store UnitPieces, not UnitStats, we deal with this here
     public void setCurrTile(HexInfo hi)
@@ -52,5 +60,15 @@ public class UnitPiece : MonoBehaviour
     public override string ToString()
     {
         return stats.ToString();
+    }
+
+    public void assignFaction(Faction f)
+    {
+        stats.faction = f;
+        Material[] found = f.getTones();
+        for(int i = 0; i < 2; i++)
+        {
+            mats[i] = found[i];
+        }
     }
 }

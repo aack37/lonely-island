@@ -22,6 +22,11 @@ public class UnitStats : MonoBehaviour
         currTile = hi;
     }
 
+    public Faction getFaction()
+    {
+        return faction;
+    }
+
     //return tile you're standing on
     public HexInfo getCurrTile()
     {

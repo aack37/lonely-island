@@ -23,6 +23,7 @@ public class HexInfo
 
     //UNIT STUFF
     public UnitPiece unit;
+    public bool withinRangeOfSelected = false; //within range of selected unit?
 
     //basically empty constructor, does nothing
     public HexInfo(int xC, int yC)

@@ -21,12 +21,21 @@ public class PopGen : MonoBehaviour
     void spawnUnitsRandomly()
     {
         Faction defender = FactionManager.factions[0];
+        Faction attacker = FactionManager.factions[1];
         for (int i = 0; i < 20; i++)
         {
             (int xC, int yC) coords = (Mathf.FloorToInt(Random.value * 10 + TerrainGen.gridWidth / 2),
                     Mathf.FloorToInt(Random.value * 10 + TerrainGen.gridWidth / 2));
 
             UnitPiece p = defender.spawnUnitPiece(unitTemplates, hexaGrid[coords.xC, coords.yC]);
+        }
+
+        for (int i = 0; i < 10; i++)
+        {
+            (int xC, int yC) coords = (Mathf.FloorToInt(Random.value * 10 + TerrainGen.gridWidth / 2),
+                    Mathf.FloorToInt(Random.value * 10 + TerrainGen.gridWidth / 2));
+
+            UnitPiece p = attacker.spawnUnitPiece(unitTemplates, hexaGrid[coords.xC, coords.yC]);
         }
 
         moveManager.SetActive(true);

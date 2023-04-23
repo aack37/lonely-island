@@ -22,6 +22,8 @@ public class UnitMoveManager : MonoBehaviour
     //used in dijkstra's
     static private HashSet<HexInfo> onceVisited;
     static private HashSet<HexInfo> lockedIn;
+    //locked in codes: 0 = empty, 1 = friendly unit (can swap), 2 = enemy unit (can attack)
+    static private Dictionary<HexInfo, int> lockedInCodes;
     static private Dictionary<HexInfo, (float dist, HexInfo tile)> dijkstraInfo;
     static private MinHeap<float, HexInfo> heap = new MinHeap<float, HexInfo>();
 
@@ -31,8 +33,9 @@ public class UnitMoveManager : MonoBehaviour
         //run BEFORE PopGen deletes TerrainGen!
         onceVisited = new HashSet<HexInfo>(); lockedIn = new HashSet<HexInfo>();
         dijkstraInfo = new Dictionary<HexInfo, (float dist, HexInfo tile)>();
+        lockedInCodes = new Dictionary<HexInfo, int>();
         TileClicker.unitSelected += showMoveOpportunities;
-        MoveTileClicker.unitMoved += moveSelectedUnit;
+        TileClicker.unitMoved += moveSelectedUnit;
 
         container = new GameObject();
     }
@@ -56,11 +59,27 @@ public class UnitMoveManager : MonoBehaviour
             HashSet<HexInfo> moves = getMovementOpportunities(start);
             foreach(HexInfo movable in moves)
             {
-                GameObject curr = Instantiate(movementShowTemp);
-                curr.transform.position = movable.getOnTopOfLC();
-                curr.transform.parent = container.transform;
-                curr.GetComponent<MoveTileClicker>().hexInfo = movable;
-                curr.SetActive(true);
+                int code = lockedInCodes[movable];
+                if (code > 0)
+                {
+                    //TODO: SWAP AND ATTACK MECHANICS!!!
+                    if(code == 1)
+                    {
+                        Debug.Log("Friendly unit on " + movable);
+                    } else
+                    {
+                        Debug.Log("Enemy unit on " + movable);
+                    }
+                }
+                else
+                {
+                    GameObject curr = Instantiate(movementShowTemp);
+                    curr.transform.position = movable.getOnTopOfLC();
+                    curr.transform.parent = container.transform;
+
+                    movable.withinRangeOfSelected = true; //tell the tile that it can now be moved to...
+                    curr.SetActive(true);
+                }
             }
         }
     }
@@ -73,11 +92,13 @@ public class UnitMoveManager : MonoBehaviour
     {
         //reset structures
         onceVisited.Clear(); lockedIn.Clear();
+        lockedInCodes.Clear();
         dijkstraInfo.Clear();
         heap.Clear();
 
         //get critical values
         UnitPiece unitMoving = start.unit;
+        Faction unitMovingFaction = start.unit.stats.faction;
         selectedUnit = unitMoving;
         float maxMovement = unitMoving.stats.maxMovement;
 
@@ -103,6 +124,7 @@ public class UnitMoveManager : MonoBehaviour
 
             //otherwise, lock this tile in, and do the neighbors thing
             lockedIn.Add(currHex);
+            assignLockedInCode(currHex, unitMovingFaction);
             foreach (HexInfo n in currHex.GetNeighbors())
             {
                 if (n != null)
@@ -129,6 +151,17 @@ public class UnitMoveManager : MonoBehaviour
         }
 
         return lockedIn;
+    }
+
+    private static void assignLockedInCode(HexInfo currHex, Faction f)
+    {
+        int code = 0;
+        if (currHex.unit != null)
+        {
+            if(currHex.unit.stats.faction == f) { code = 1; }
+            else { code = 2; }
+        }
+        lockedInCodes.Add(currHex, code);
     }
 
     //add to dictionary and min heap on first time discovering a tile
@@ -161,6 +194,11 @@ public class UnitMoveManager : MonoBehaviour
     //get rid of all the blue hexes showing where you can move
     private void resetMoveOpportunities()
     {
+        foreach(HexInfo movable in lockedIn) //reset all the hexInfo stuff
+        {
+            movable.withinRangeOfSelected = false;
+        }
+
         Destroy(container);
         container = new GameObject();
         container.name = "MoveOppCont";

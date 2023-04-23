@@ -9,6 +9,7 @@ public class TileClicker : MonoBehaviour
     public static event Action<HexTile> tileHover;
     public static event Action<HexTile> tileSelected;
     public static event Action<HexInfo> unitSelected;
+    public static event Action<HexInfo> unitMoved;
 
     private HexTile hexTile;
 
@@ -28,5 +29,13 @@ public class TileClicker : MonoBehaviour
         //int offset = 0; if (hexInfo.GetX() % 2 == 0) offset = 2;
         //selectionBeam.transform.position = new Vector3(hexInfo.GetX() * 3.5f,0,hexInfo.GetY() * 4 + offset);
         tileHover?.Invoke(hexTile);
+    }
+
+    private void OnMouseOver()
+    {
+        if (Input.GetMouseButtonDown(1) && hexTile.hexInfo.withinRangeOfSelected)
+        {
+            unitMoved?.Invoke(hexTile.hexInfo);
+        }
     }
 }

@@ -5,7 +5,7 @@ using System;
 
 public class MoveTileClicker : MonoBehaviour
 {
-    public static event Action<HexInfo> unitMoved;
+    /*public static event Action<HexInfo> unitMoved;
 
     public HexInfo hexInfo;
 
@@ -15,5 +15,5 @@ public class MoveTileClicker : MonoBehaviour
         {
             unitMoved?.Invoke(hexInfo);
         }
-    }
+    }*/
 }

@@ -135,7 +135,7 @@ public class OrthoCam : MonoBehaviour
             //Debug.Log(GetComponent<Camera>().orthographicSize);
         }
 
-        if (Input.GetMouseButton(1) && !strategicView)
+        if (Input.GetMouseButton(2) && !strategicView)
         {
             float tempY = yrotation + Input.GetAxis("Mouse Y") * sensitivity;
             

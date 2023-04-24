@@ -34,8 +34,11 @@ public class UnitMoveManager : MonoBehaviour
         onceVisited = new HashSet<HexInfo>(); lockedIn = new HashSet<HexInfo>();
         dijkstraInfo = new Dictionary<HexInfo, (float dist, HexInfo tile)>();
         lockedInCodes = new Dictionary<HexInfo, int>();
+
         TileClicker.unitSelected += showMoveOpportunities;
         TileClicker.unitMoved += moveSelectedUnit;
+        OceanHexFinder.oceanUnitSelected += showMoveOpportunities;
+        OceanHexFinder.oceanUnitMoved += moveSelectedUnit;
 
         container = new GameObject();
     }
@@ -59,27 +62,30 @@ public class UnitMoveManager : MonoBehaviour
             HashSet<HexInfo> moves = getMovementOpportunities(start);
             foreach(HexInfo movable in moves)
             {
+                GameObject curr = Instantiate(movementShowTemp);
+                curr.transform.position = movable.getOnTopOfLC();
+                curr.transform.parent = container.transform;
+
                 int code = lockedInCodes[movable];
                 if (code > 0)
                 {
                     //TODO: SWAP AND ATTACK MECHANICS!!!
                     if(code == 1)
                     {
+                        curr.GetComponent<MeshRenderer>().material.color = new Color(0.7f, 0.67f, 0.15f, 0.5f);
                         Debug.Log("Friendly unit on " + movable);
                     } else
                     {
+                        curr.GetComponent<MeshRenderer>().material.color = new Color(0.5f, 0.1f, 0.15f, 0.5f);
                         Debug.Log("Enemy unit on " + movable);
                     }
                 }
                 else
                 {
-                    GameObject curr = Instantiate(movementShowTemp);
-                    curr.transform.position = movable.getOnTopOfLC();
-                    curr.transform.parent = container.transform;
 
                     movable.withinRangeOfSelected = true; //tell the tile that it can now be moved to...
-                    curr.SetActive(true);
                 }
+                curr.SetActive(true);
             }
         }
     }

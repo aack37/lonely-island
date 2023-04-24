@@ -8,12 +8,18 @@ public class OceanHexFinder : MonoBehaviour
 {
     public static event Action<HexInfo> oceanTileHover;
     public static event Action<HexInfo> oceanTileSelected;
-
+    public static event Action<HexInfo> oceanUnitSelected;
+    public static event Action<HexInfo> oceanUnitMoved;
 
     private void OnMouseDown()
     {
         (int xC, int yC) coords = getOceanCoordinates();
-        oceanTileSelected?.Invoke(TerrainGen.hexGrid[coords.xC, coords.yC]);
+        if (coords.xC != -1)
+        {
+            HexInfo tile = TerrainGen.hexGrid[coords.xC, coords.yC];
+            oceanTileSelected?.Invoke(tile);
+            oceanUnitSelected?.Invoke(tile);
+        }
     }
 
     private void OnMouseEnter()
@@ -21,6 +27,24 @@ public class OceanHexFinder : MonoBehaviour
         oceanTileHover?.Invoke(null);
     }
 
+    private void OnMouseOver()
+    {
+        if (Input.GetMouseButtonDown(1))
+        {
+            (int xC, int yC) coords = getOceanCoordinates();
+            if (coords.xC != -1)
+            {
+                HexInfo tile = TerrainGen.hexGrid[coords.xC, coords.yC];
+                if (tile.withinRangeOfSelected)
+                {
+                    oceanUnitMoved?.Invoke(tile);
+                }
+            }
+            
+        }
+    }
+
+    //get coordinates of the hex you would have clicked
     private (int, int) getOceanCoordinates()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);

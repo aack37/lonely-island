@@ -24,7 +24,7 @@ public class UnitMoveManager : MonoBehaviour
     static private HashSet<HexInfo> lockedIn;
     //locked in codes: 0 = empty, 1 = friendly unit (can swap), 2 = enemy unit (can attack)
     static private Dictionary<HexInfo, int> lockedInCodes;
-    static private Dictionary<HexInfo, (float dist, HexInfo tile)> dijkstraInfo;
+    static private Dictionary<HexInfo, (float dist, HexInfo prev)> dijkstraInfo;
     static private MinHeap<float, HexInfo> heap = new MinHeap<float, HexInfo>();
 
     // Start is called before the first frame update
@@ -32,7 +32,7 @@ public class UnitMoveManager : MonoBehaviour
     {
         //run BEFORE PopGen deletes TerrainGen!
         onceVisited = new HashSet<HexInfo>(); lockedIn = new HashSet<HexInfo>();
-        dijkstraInfo = new Dictionary<HexInfo, (float dist, HexInfo tile)>();
+        dijkstraInfo = new Dictionary<HexInfo, (float dist, HexInfo prev)>();
         lockedInCodes = new Dictionary<HexInfo, int>();
 
         TileClicker.unitSelected += showMoveOpportunities;
@@ -46,8 +46,18 @@ public class UnitMoveManager : MonoBehaviour
     //moves a unit from one location to another.
     void moveSelectedUnit(HexInfo dest)
     {
+        //Debug.Log(dijkstraInfo[dest].prev);
         selectedUnit.setCurrTile(dest);
         resetMoveOpportunities();
+    }
+
+    void genMoveArrows(HexInfo dest)
+    {
+        while(dest != null)
+        {
+            dest = dijkstraInfo[dest].prev;
+
+        }
     }
 
     //spawn the blue tiles that show where the current unit can move.

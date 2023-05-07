@@ -5,8 +5,8 @@
       <author>Blender User</author>
       <authoring_tool>Blender 3.5.1 commit date:2023-04-24, commit time:18:11, hash:e1ccd9d4a1d3</authoring_tool>
     </contributor>
-    <created>2023-05-06T03:08:34</created>
-    <modified>2023-05-06T03:08:34</modified>
+    <created>2023-05-06T20:43:36</created>
+    <modified>2023-05-06T20:43:36</modified>
     <unit name="meter" meter="1"/>
     <up_axis>Z_UP</up_axis>
   </asset>
@@ -15,7 +15,7 @@
     <geometry id="Cube-mesh" name="Cube">
       <mesh>
         <source id="Cube-mesh-positions">
-          <float_array id="Cube-mesh-positions-array" count="24">-1 -2 -2 -1 -2 0 -1 0 -2 -1 0 0 0.9999998 -2 -2 0.9999998 -2 0 0.9999998 0 -2 0.9999998 0 0</float_array>
+          <float_array id="Cube-mesh-positions-array" count="24">-1 -2 -1 -1 -2 1 -1 0 -1 -1 0 1 1 -2 -1 1 -2 1 1 0 -1 1 0 1</float_array>
           <technique_common>
             <accessor source="#Cube-mesh-positions-array" count="8" stride="3">
               <param name="X" type="float"/>
@@ -58,7 +58,7 @@
   <library_visual_scenes>
     <visual_scene id="Scene" name="Scene">
       <node id="Cube" name="Cube" type="NODE">
-        <matrix sid="transform">0.4 0 0 0 0 1 0 0 0 0 0.05 0.2 0 0 0 1</matrix>
+        <matrix sid="transform">0.4 0 0 -8.9407e-8 0 1 0 5.96046e-8 0 0 0.05 0.15 0 0 0 1</matrix>
         <instance_geometry url="#Cube-mesh" name="Cube"/>
       </node>
     </visual_scene>

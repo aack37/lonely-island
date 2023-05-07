@@ -5,8 +5,8 @@
       <author>Blender User</author>
       <authoring_tool>Blender 3.5.1 commit date:2023-04-24, commit time:18:11, hash:e1ccd9d4a1d3</authoring_tool>
     </contributor>
-    <created>2023-05-06T03:08:17</created>
-    <modified>2023-05-06T03:08:17</modified>
+    <created>2023-05-06T20:42:40</created>
+    <modified>2023-05-06T20:42:40</modified>
     <unit name="meter" meter="1"/>
     <up_axis>Z_UP</up_axis>
   </asset>
@@ -15,7 +15,7 @@
     <geometry id="Cube-mesh" name="Cube">
       <mesh>
         <source id="Cube-mesh-positions">
-          <float_array id="Cube-mesh-positions-array" count="27">-1 0 -2 -1 0 0 0.9999998 0 -2 0.9999998 0 0 0.9999998 -1.877786 -2 1 -1.877786 -1.224899 -1 -1.786877 0 -1 -1.786877 -2 0.9999998 -1.877786 0</float_array>
+          <float_array id="Cube-mesh-positions-array" count="27">-1 0 -1 -1 0 0.9999998 1 0 -1 1 0 0.9999998 1 -1.877786 -1 1.000001 -1.877786 -0.2248995 -1 -1.786877 0.9999998 -1 -1.786877 -1 1 -1.877786 0.9999998</float_array>
           <technique_common>
             <accessor source="#Cube-mesh-positions-array" count="9" stride="3">
               <param name="X" type="float"/>
@@ -25,7 +25,7 @@
           </technique_common>
         </source>
         <source id="Cube-mesh-normals">
-          <float_array id="Cube-mesh-normals-array" count="36">0 1 0 1 0 5.8393e-7 0 0 -1 0 0 1 -0.04540753 -0.9989686 1.94618e-7 -1 0 0 1 0 -9.22791e-7 1 3.80904e-7 0 -1.26968e-7 0 -1 0 0 1 -0.04540753 -0.9989686 -1.94443e-7 -0.04540753 -0.9989686 0</float_array>
+          <float_array id="Cube-mesh-normals-array" count="36">0 1 0 1 0 5.8393e-7 0 0 -1 0 0 1 -0.04540753 -0.9989686 1.94618e-7 -1 0 0 1 0 -9.22791e-7 1 3.80904e-7 0 0 0 -1 0 0 1 -0.04540753 -0.9989686 -1.94443e-7 -0.04540753 -0.9989686 0</float_array>
           <technique_common>
             <accessor source="#Cube-mesh-normals-array" count="12" stride="3">
               <param name="X" type="float"/>
@@ -58,7 +58,7 @@
   <library_visual_scenes>
     <visual_scene id="Scene" name="Scene">
       <node id="Cube" name="Cube" type="NODE">
-        <matrix sid="transform">0.1984557 -0.9550673 0 0 0.3472972 0.5457531 0 0 0 0 0.05 0.2 0 0 0 1</matrix>
+        <matrix sid="transform">0.1984557 -0.9550673 0 -1.04308e-7 0.3472972 0.5457531 0 -5.96046e-8 0 0 0.05 0.15 0 0 0 1</matrix>
         <instance_geometry url="#Cube-mesh" name="Cube"/>
       </node>
     </visual_scene>

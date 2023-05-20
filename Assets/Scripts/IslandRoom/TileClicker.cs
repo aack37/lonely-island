@@ -6,10 +6,10 @@ using System;
 //this script handles when a tile (hexTile) is actually clicked.
 public class TileClicker : MonoBehaviour
 {
-    public static event Action<HexTile> tileHover;
-    public static event Action<HexTile> tileSelected;
-    public static event Action<HexInfo> unitSelected;
-    public static event Action<HexInfo> unitMoved;
+    public static event Action<HexTile> tileHover; //hovering over a hex
+    public static event Action<HexTile> tileSelected; //left clicked a hex
+    public static event Action<HexInfo> unitSelected; //left clicked a hex with a unit on it
+    public static event Action<HexInfo> unitMoved; //right clicked a hex the unit can move to in this turn
 
     private HexTile hexTile;
 

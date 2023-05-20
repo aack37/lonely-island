@@ -6653,6 +6653,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   movementShowTemp: {fileID: 1837948822}
+  pathTracer: {fileID: 1094594576}
 --- !u!4 &2129033625
 Transform:
   m_ObjectHideFlags: 0

@@ -22,25 +22,29 @@ public class OceanHexFinder : MonoBehaviour
         }
     }
 
-    private void OnMouseEnter()
+    /*private void OnMouseEnter()
     {
         oceanTileHover?.Invoke(null);
-    }
+    }*/
 
     private void OnMouseOver()
     {
-        if (Input.GetMouseButtonDown(1))
+        (int xC, int yC) coords = getOceanCoordinates();
+        if (coords.xC != -1)
         {
-            (int xC, int yC) coords = getOceanCoordinates();
-            if (coords.xC != -1)
+            HexInfo tile = TerrainGen.hexGrid[coords.xC, coords.yC];
+            if (Input.GetMouseButtonDown(1))
             {
-                HexInfo tile = TerrainGen.hexGrid[coords.xC, coords.yC];
                 if (tile.withinRangeOfSelected)
                 {
                     oceanUnitMoved?.Invoke(tile);
                 }
             }
-            
+            else
+            {
+                oceanTileHover?.Invoke(tile);
+            }
+
         }
     }
 

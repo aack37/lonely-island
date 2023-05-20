@@ -25,6 +25,11 @@ public class HexInfo
     public UnitPiece unit;
     public bool withinRangeOfSelected = false; //within range of selected unit?
 
+    //STRUCTURE / BUILDINGS
+    public Structure structure;
+    public bool[] roads = new bool[6];
+    public bool[] rivers = new bool[6];
+
     //basically empty constructor, does nothing
     public HexInfo(int xC, int yC)
     {
@@ -109,4 +114,9 @@ public class HexInfo
             }
         }
     }
+
+    /*public override int GetHashCode()
+    {
+        return xCoords * 100 + yCoords;
+    }*/
 }

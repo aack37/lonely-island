@@ -6,9 +6,9 @@ using System;
 //it's just an ordinary min heap ya know
 public class MinHeap<TValue, TData> where TValue : IComparable
 {
-    List<MinHeapNode<TValue, TData>> arr = new List<MinHeapNode<TValue, TData>>();
-    int size = 0;
-    Dictionary<TData, int> heapMap = new Dictionary<TData, int>(); //maps each element in the heap to its index in the heap
+    protected List<MinHeapNode<TValue, TData>> arr = new List<MinHeapNode<TValue, TData>>();
+    protected int size = 0;
+    protected Dictionary<TData, int> heapMap = new Dictionary<TData, int>(); //maps each element in the heap to its index in the heap
 
     //add to minHeap
     public void insert(TValue priority, TData element)
@@ -28,7 +28,6 @@ public class MinHeap<TValue, TData> where TValue : IComparable
 
             curr = getParent(curr); //get ready for the next round.
         }
-
         if(element != null) heapMap.Add(element, curr); //add it into the heapMap
     }
 
@@ -130,6 +129,8 @@ public class MinHeap<TValue, TData> where TValue : IComparable
         }
         return -1;
     }
+
+
 
     //return index of the specified item in heap
     public int getIndexInHeap(TData findMe)

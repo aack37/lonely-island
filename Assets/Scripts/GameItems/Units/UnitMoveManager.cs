@@ -40,6 +40,7 @@ public class UnitMoveManager : MonoBehaviour
         dijkstraInfo = new Dictionary<HexInfo, (AStarNode anode, HexInfo prev)>();
         lockedInCodes = new Dictionary<HexInfo, int>();
 
+        //unit movement
         TileClicker.unitSelected += onUnitSelected;
         TileClicker.unitMoved += moveSelectedUnit;
         OceanHexFinder.oceanUnitSelected += onUnitSelected;

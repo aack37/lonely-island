@@ -17,7 +17,7 @@ public class HexInfo
 
     public bool isOceanCoastal = false; //set to -1 if not a coastal land tile, otherwise, the direction of any ocean water
     public bool isLakeCoastal = false; //same as above but for lakes
-    public bool treeCover = false;
+    public int treeCover = 0; //0 = none, 1 = temperate, 2 = pine, 3 = tropical
 
     public List<int> inNaturalFeatures; //which natural features are you in, if any
 
@@ -27,8 +27,8 @@ public class HexInfo
 
     //STRUCTURE / BUILDINGS
     public Structure structure;
-    public bool[] roads = new bool[6];
-    public bool[] rivers = new bool[6];
+    public HashSet<int> roads = new HashSet<int>();
+    public HashSet<int> rivers = new HashSet<int>();
 
     //basically empty constructor, does nothing
     public HexInfo(int xC, int yC)
@@ -65,8 +65,11 @@ public class HexInfo
         terrain = resetTo;
         isOceanCoastal = false;
         isLakeCoastal = false;
-        treeCover = false;
+        treeCover = 0;
         inNaturalFeatures.Clear();
+
+        //structure = null; unit = null;
+        rivers.Clear(); //roads.Clear();
     }
 
     //start using this from now on, to get the position that would put an object ON TOP OF a tile...with left corner coords.
@@ -98,6 +101,15 @@ public class HexInfo
         else return elevation * 2;
     }
 
+    public float GetElevWTopsoil() //return elevation, plus topsoil if it exists
+    {
+        if (TerrainTypesSingletons.hasTopsoil(terrain))
+        {
+            return elevation + 0.1f;
+        }
+        else return elevation;
+    }
+
     public void updateCoastals()
     {
         isOceanCoastal = isLakeCoastal = false;
@@ -115,8 +127,8 @@ public class HexInfo
         }
     }
 
-    /*public override int GetHashCode()
+    public float getDistanceApprox(HexInfo other)
     {
-        return xCoords * 100 + yCoords;
-    }*/
+        return Mathf.FloorToInt(Mathf.Sqrt(Mathf.Pow(xCoords - other.xCoords, 2) + Mathf.Pow(yCoords - other.yCoords, 2)));
+    }
 }

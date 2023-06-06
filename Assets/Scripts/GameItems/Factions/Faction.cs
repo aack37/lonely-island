@@ -31,6 +31,7 @@ public class Faction
         toneList = new Material[] { countryTone, uniformTone, skinTone };
 
         armyContainer = new GameObject();
+        armyContainer.name = factionName + " Army";
     }
 
     public Material[] getTones()

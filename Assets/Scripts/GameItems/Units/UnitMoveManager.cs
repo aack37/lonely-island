@@ -18,7 +18,7 @@ public class UnitMoveManager : MonoBehaviour
     //these things are used in displaying tiles you can move to
     public GameObject movementShowTemp;
     private GameObject container1;
-    public GameObject pathTracer;
+    public RoadGenerator roadManager;
     private GameObject container2;
 
     //used in dijkstra's
@@ -48,6 +48,7 @@ public class UnitMoveManager : MonoBehaviour
 
         //pathfinding
         TileClicker.tileHover += tracePath;
+        OceanHexFinder.oceanTileHover += tracePathOcean;
 
         container1 = new GameObject();
         container2 = new GameObject();
@@ -57,13 +58,17 @@ public class UnitMoveManager : MonoBehaviour
     //to make things easier with hexInfo for ocean tiles. that's literally it.
     private void onUnitSelected(HexInfo hi)
     {
-        selectedUnit = hi.unit;
-        if(selectedUnit != null)
+        lockedIn.Clear();
+        resetMoveOpportunities();
+        resetPathTracer(hoverPath);
+
+        if(hi.unit != null && selectedUnit != hi.unit) //check for no selection or deselection
         {
+            selectedUnit = hi.unit;
             showMoveOpportunities(hi);
         } else
         {
-            
+            selectedUnit = null;
         }
         
     }
@@ -71,10 +76,11 @@ public class UnitMoveManager : MonoBehaviour
     //moves a unit from one location to another.
     void moveSelectedUnit(HexInfo dest)
     {
-        //Debug.Log(dijkstraInfo[dest].prev);
         selectedUnit.setCurrTile(dest);
-        resetMoveOpportunities();
         selectedUnit = null;
+        resetMoveOpportunities();
+        resetPathTracer(hoverPath);
+        WorldMapManager.deselectTile();
     }
 
     // ---------------------- //
@@ -88,7 +94,6 @@ public class UnitMoveManager : MonoBehaviour
         //if we already found the path, just return that
         if (lockedIn.Contains(dest))
         {
-            //Debug.Log("found shortcut path successfully, of length: " + dijkstraInfo[dest].anode.getGCost());
             return true;
         }
 
@@ -132,7 +137,6 @@ public class UnitMoveManager : MonoBehaviour
             
             if (stillSearching)
             {
-                Debug.Log("Locking in tile: " + currHex + ", with distance " + finalDist);
                 lockedIn.Add(currHex);
                 assignLockedInCode(currHex, unitMovingFaction);
             }
@@ -180,7 +184,6 @@ public class UnitMoveManager : MonoBehaviour
 
         if (!stillSearching)
         {
-            //Debug.Log("found path successfully, of distance: " + dijkstraInfo[dest].anode.getGCost());
             return true;
         }
         else
@@ -191,32 +194,62 @@ public class UnitMoveManager : MonoBehaviour
     }
 
     //trace shortest path from the unit to a specified tile (whatever tile you're hovering over)
+    List<HexInfo> hoverPath = new List<HexInfo>();
     void tracePath(HexTile hovering)
     {
+        resetPathTracer(hoverPath);
+        hoverPath.Clear();
         if (selectedUnit != null)
         {
-            resetPathTracer();
-
             HexInfo dest = hovering.hexInfo;
             if (getShortestPath(dest))
             {
+                
                 HexInfo next = dest;
                 do
                 {
-                    GameObject thing = Instantiate(pathTracer);
-                    thing.transform.position = next.getOnTopOfCenter();
-                    thing.transform.parent = container2.transform;
+                    hoverPath.Add(next);
 
                     next = dijkstraInfo[next].prev;
                 } while (next != null);
+
+                //add to container2
+                roadManager.generateRoadPath(hoverPath).transform.parent = container2.transform;
             } else
             {
                 Debug.Log("ERR: Couldn't find a path to the tile");
             }
             
-        } else
+        }
+    }
+
+    //exact same thing as above, but for ocean tiles
+    void tracePathOcean(HexInfo hovering)
+    {
+        resetPathTracer(hoverPath);
+        hoverPath.Clear();
+        if (selectedUnit != null)
         {
-            resetPathTracer();
+            HexInfo dest = hovering;
+            if (getShortestPath(dest))
+            {
+
+                HexInfo next = dest;
+                do
+                {
+                    hoverPath.Add(next);
+
+                    next = dijkstraInfo[next].prev;
+                } while (next != null);
+
+                //add to container2
+                roadManager.generateRoadPath(hoverPath).transform.parent = container2.transform;
+            }
+            else
+            {
+                Debug.Log("ERR: Couldn't find a path to the tile");
+            }
+
         }
     }
 
@@ -227,8 +260,6 @@ public class UnitMoveManager : MonoBehaviour
     //spawn the blue tiles that show where the current unit can move.
     void showMoveOpportunities(HexInfo start)
     {
-        //delete everything when a new tile gets selected
-        resetMoveOpportunities();
 
         //if there's a unit here, run the stuff
         if (start.unit != null)
@@ -403,8 +434,15 @@ public class UnitMoveManager : MonoBehaviour
         container1.name = "MoveOppCont";
     }
 
-    private void resetPathTracer()
+    private void resetPathTracer(List<HexInfo> oldPath)
     {
+        if(oldPath != null) {
+            foreach (HexInfo hex in oldPath)
+            {
+                hex.roads.Clear();
+            }
+        }
+        
         Destroy(container2);
         container2 = new GameObject();
         container2.name = "PathTracerCont";

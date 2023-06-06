@@ -57,10 +57,6 @@ public class HexTile : MonoBehaviour
                 }
             }
 
-            //if(ht.hexInfo.isLakeCoastal) mat.color = Color.red; //DEBUGGING
-            //else mat.color = ht.hexInfo.terrain.getColor(); //DEBUGGING
-            //mat.color = hexInfo.terrain.getColor();
-
             //land height determined by elevationStep (sea level is always 0.1)
             if (hexInfo.terrain.getTerrainID() != 2)
             {
@@ -91,8 +87,14 @@ public class HexTile : MonoBehaviour
                 bottomMat.color = hexInfo.terrain.getColor();
             }
 
+            if (hexInfo.rivers.Count > 0)
+            {
+                if(topMat != null) topMat.color = Color.red;
+                bottomMat.color = Color.red;
+            }
+
             //the last step is making trees, if applicable.
-            if (hexInfo.treeCover)
+            if (hexInfo.treeCover != 0)
             {
                 GameObject newTrees;
                 //trees no longer generate on mountains
@@ -100,6 +102,7 @@ public class HexTile : MonoBehaviour
                 //{
                     if (hexInfo.elevation > TGenSettings.pineLine)
                     {
+                        hexInfo.treeCover = 2; //set to pine forest if above the pine line
                         newTrees = ForestTrees.instance.newPineForest();
                         newTrees.transform.position = new Vector3(hexInfo.GetRealX(), (hexInfo.elevation * 2f) + 0.5f, hexInfo.GetRealY());
                     }

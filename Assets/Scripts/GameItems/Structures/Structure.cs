@@ -4,7 +4,13 @@ using UnityEngine;
 
 public class Structure : MonoBehaviour
 {
-    public GameObject model;
+    public string structName;
+
+    //spawn a new copy of the tempate into the world. other methods deal with the specifics
+    public static Structure createNewCopy(Structure template)
+    {
+        return Instantiate(template);
+    }
 
     // Start is called before the first frame update
     void Start()

@@ -28,7 +28,10 @@ public class TerrainGen : MonoBehaviour
     public static TerrainTypesSingletons singles;
 
     //used in generating landforms, picking town locations...
-    List<HexInfo>[] terraStorage;
+    List<HexInfo> unalteredLand; //landlocked tiles with no natural features yet
+    List<HexInfo> generalLand; //landlocked tiles
+    List<HexInfo> coastalLand;
+    
 
     //used for storing natural features...
     List<HashSet<HexInfo>> naturalFeatureRegions; //stores the regions themselves as hashsets of tiles.
@@ -41,13 +44,9 @@ public class TerrainGen : MonoBehaviour
 
     void resetBigLists()
     {
-        //terraStorage, for storing which terrain tiles are where
-        //System.Array.Clear(terraStorage, 0, terraStorage.Length);
-
-        for (int i = 0; i < singles.numTerrainTypes; i++)
-        {
-            terraStorage[i].Clear();
-        }
+        unalteredLand.Clear();
+        generalLand.Clear();
+        coastalLand.Clear();
 
         naturalFeatureRegions.Clear(); //natural feature stuff
         naturalFeatureTypes.Clear();
@@ -81,12 +80,9 @@ public class TerrainGen : MonoBehaviour
         naturalFeatureTypes = new Dictionary<int, TerrainType>();
         gennedNametags = new List<GameObject>();
 
-        terraStorage = new List<HexInfo>[singles.numTerrainTypes];
-        for (int i = 0; i < singles.numTerrainTypes; i++)
-        {
-            terraStorage[i] = new List<HexInfo>();
-            //maybe do hash set instead of list?
-        }
+        unalteredLand = new List<HexInfo>();
+        generalLand = new List<HexInfo>();
+        coastalLand = new List<HexInfo>();
 
         //let's roll
         InitialGridSetup();
@@ -196,7 +192,7 @@ public class TerrainGen : MonoBehaviour
 
         Destroy(container);
         container = new GameObject();
-        container.name = "Container";
+        container.name = "HexContainer";
 
         resetBigLists();
         //TODO: REMOVE ABOVE ---
@@ -228,9 +224,15 @@ public class TerrainGen : MonoBehaviour
             if (mapSizeMult - 1 > 0) PlainGeneration(1, 1, 8, 0.4f);
         }
 
+        //RIVERS - biomes such as plains change the heightmap so we have to wait until here
+        RiverGeneration(1, 1, 0.9f);
+
+
+        //FOREST / TREE COVER
         if (TGenSettings.enabledBiomes[0]) ForestyFinish(TGenSettings.forestDensity);
 
         TranslateToRealWorld();
+        Debug.Log("TerrainGen finished in " + Time.deltaTime + " seconds");
         DEBUG_GENERATING = false;
     }
 
@@ -316,6 +318,8 @@ public class TerrainGen : MonoBehaviour
                     {
                         currTile.isOceanCoastal = true;
                         currTile.elevation = 0.5f;
+
+                        coastalLand.Add(currTile);
                     }
 
                 }
@@ -324,10 +328,10 @@ public class TerrainGen : MonoBehaviour
                 if (currTile.terrain.getTerrainID() == 3)
                 {
                     currTile.elevation = Random.Range(0.4f, 1.3f);
-                    //currTile.elevation = 1f;
+                    //and add it to the lists we have in mind
+                    generalLand.Add(currTile);
+                    unalteredLand.Add(currTile);
                 }
-
-                terraStorage[currTile.terrain.getTerrainID()].Add(currTile);
             }
         }
 
@@ -437,8 +441,8 @@ public class TerrainGen : MonoBehaviour
             HexInfo startOfLake; int indexOfSOL;
             do
             {
-                indexOfSOL = Mathf.FloorToInt(Random.value * terraStorage[3].Count);
-                startOfLake = terraStorage[3][indexOfSOL];
+                indexOfSOL = Mathf.FloorToInt(Random.value * unalteredLand.Count);
+                startOfLake = unalteredLand[indexOfSOL];
             } while (startOfLake.terrain.getTerrainID() != 3 || startOfLake.isLakeCoastal || startOfLake.isOceanCoastal);
 
             Queue<HexInfo> queue = new Queue<HexInfo>(); //typical queue stuff:
@@ -461,7 +465,9 @@ public class TerrainGen : MonoBehaviour
                 currTile.elevation = 0.1f;
                 currTile.inNaturalFeatures.Add(soonToBeIndex); //the tile is apart of a natural feature
                 tilesInThisLake.Add(currTile);
-                terraStorage[3].Remove(currTile); //it's not land anymore, don't use it for future land stuff.
+
+                unalteredLand.Remove(currTile); //it's not land anymore, don't use it for future land stuff.
+                generalLand.Remove(currTile);
 
                 foreach (HexInfo n in currTile.GetNeighbors())
                 {
@@ -515,8 +521,8 @@ public class TerrainGen : MonoBehaviour
             HexInfo startOfBay; int indexOfSOB;
             do
             {
-                indexOfSOB = Mathf.FloorToInt(Random.value * terraStorage[4].Count);
-                startOfBay = terraStorage[4][indexOfSOB];
+                indexOfSOB = Mathf.FloorToInt(Random.value * coastalLand.Count);
+                startOfBay = coastalLand[indexOfSOB];
             } while (startOfBay.terrain.getTerrainID() != 4 || !startOfBay.isOceanCoastal || startOfBay.isLakeCoastal);
 
             Queue<HexInfo> queue = new Queue<HexInfo>(); //typical queue stuff:
@@ -540,7 +546,7 @@ public class TerrainGen : MonoBehaviour
                 tilesInThisBay.Add(currTile);
                 currTile.inNaturalFeatures.Add(soonToBeIndex); //the tile is apart of a natural feature
 
-                terraStorage[4].Remove(currTile); //it's not coastal anymore, don't use it for future land stuff.
+                coastalLand.Remove(currTile); //it's not coastal anymore, don't use it for future land stuff.
 
                 foreach (HexInfo n in currTile.GetNeighbors())
                 {
@@ -553,14 +559,18 @@ public class TerrainGen : MonoBehaviour
                             {
                                 queue.Enqueue(n);
                                 count++;
-                                //if (n.terrain.getTerrainID() == 3) terraStorage[3].Remove(n);
+                                if (n.terrain.getTerrainID() == 3)
+                                {
+                                    unalteredLand.Remove(n);
+                                    generalLand.Remove(n);
+                                }
                             }
                             else
                             {
                                 n.isOceanCoastal = true;
                                 n.elevation = 0.5f;
                                 n.terrain = singles.getTerrain("BEACH");
-                                terraStorage[4].Add(currTile);
+                                coastalLand.Add(currTile);
                             }
                         }
                     }
@@ -584,8 +594,8 @@ public class TerrainGen : MonoBehaviour
             HexInfo startOfPen; int indexOfSOP;
             do
             {
-                indexOfSOP = Mathf.FloorToInt(Random.value * terraStorage[4].Count);
-                startOfPen = terraStorage[4][indexOfSOP];
+                indexOfSOP = Mathf.FloorToInt(Random.value * coastalLand.Count);
+                startOfPen = coastalLand[indexOfSOP];
             } while (startOfPen.terrain.getTerrainID() != 4 || !startOfPen.isOceanCoastal);
 
             Queue<HexInfo> queue = new Queue<HexInfo>(); //typical queue stuff:
@@ -647,8 +657,8 @@ public class TerrainGen : MonoBehaviour
             HexInfo peak; int indexOfPeak;
             do
             {
-                indexOfPeak = Mathf.FloorToInt(Random.value * terraStorage[3].Count);
-                peak = terraStorage[3][indexOfPeak];
+                indexOfPeak = Mathf.FloorToInt(Random.value * unalteredLand.Count);
+                peak = unalteredLand[indexOfPeak];
             } while (peak.terrain.getTerrainID() != 3);
 
             Queue<HexInfo> queue = new Queue<HexInfo>(); //typical queue stuff:
@@ -670,7 +680,9 @@ public class TerrainGen : MonoBehaviour
                 currTile.elevation += ((float)(sizeOfMountain - distFromCenter) / (float)sizeOfMountain) * heightOfMountain;
                 currTile.inNaturalFeatures.Add(soonToBeIndex); //the tile is apart of a natural feature
                 tilesInMountain.Add(currTile);
-                //terraStorage[3].Remove(currTile); //we'll find other places for more features, thanks, thanks
+
+                //TODO: IMPROVE PERFORMANCE
+                unalteredLand.Remove(currTile); //we'll find other places for more features, thanks, thanks
 
                 if (sizeOfMountain - distFromCenter > 1)
                 {
@@ -705,8 +717,8 @@ public class TerrainGen : MonoBehaviour
             HexInfo startOfSwamp; int indexOfSOF;
             do
             {
-                indexOfSOF = Mathf.FloorToInt(Random.value * terraStorage[3].Count);
-                startOfSwamp = terraStorage[3][indexOfSOF];
+                indexOfSOF = Mathf.FloorToInt(Random.value * unalteredLand.Count);
+                startOfSwamp = unalteredLand[indexOfSOF];
             } while (startOfSwamp.terrain.getTerrainID() != 3 || startOfSwamp.elevation >= 2);
 
             Queue<HexInfo> queue = new Queue<HexInfo>(); //typical queue stuff:
@@ -727,7 +739,9 @@ public class TerrainGen : MonoBehaviour
                 float odds = ((float)(sizeOfSwamp - distFromCenter) / (float)sizeOfSwamp);
                 currTile.inNaturalFeatures.Add(soonToBeIndex); //the tile is apart of a natural feature
                 tilesInSwamp.Add(currTile);
-                terraStorage[3].Remove(currTile); //we'll find other places for more features, thanks, thanks
+
+                //TODO: IMPROVE PERFORMANCE
+                unalteredLand.Remove(currTile); //we'll find other places for more features, thanks, thanks
 
                 if (sizeOfSwamp - distFromCenter > 1)
                 {
@@ -764,8 +778,8 @@ public class TerrainGen : MonoBehaviour
             HexInfo startOfPlain; int indexOfSOP;
             do
             {
-                indexOfSOP = Mathf.FloorToInt(Random.value * terraStorage[3].Count);
-                startOfPlain = terraStorage[3][indexOfSOP];
+                indexOfSOP = Mathf.FloorToInt(Random.value * unalteredLand.Count);
+                startOfPlain = unalteredLand[indexOfSOP];
             } while (startOfPlain.terrain.getTerrainID() != 3 || startOfPlain.elevation >= 4f);
 
             Queue<HexInfo> queue = new Queue<HexInfo>(); //typical queue stuff:
@@ -783,14 +797,16 @@ public class TerrainGen : MonoBehaviour
             {
                 HexInfo currTile = queue.Dequeue(); //small chance we make this actual mountain terrain later...?
                 currTile.terrain = singles.getTerrain("PLAIN");
-                currTile.treeCover = false; //plains never have tree cover.
+                currTile.treeCover = 0; //plains never have tree cover.
                 currTile.elevation = Random.Range(plainElevation - elevNoise, plainElevation + elevNoise);
 
                 int distFromCenter = Pythag(currTile.GetX(), currTile.GetY(), startOfPlain.GetX(), startOfPlain.GetY());
                 float odds = ((float)(sizeOfPlain - distFromCenter) / (float)sizeOfPlain);
                 currTile.inNaturalFeatures.Add(soonToBeIndex); //the tile is apart of a natural feature
                 tilesInPlain.Add(currTile);
-                terraStorage[3].Remove(currTile); //we'll find other places for more features, thanks, thanks
+
+                //TODO: IMPROVE PERFORMANCE
+                unalteredLand.Remove(currTile); //we'll find other places for more features, thanks, thanks
 
                 if (sizeOfPlain - distFromCenter > 1)
                 {
@@ -819,16 +835,171 @@ public class TerrainGen : MonoBehaviour
     //Later on, we label forests as "Temperate", "Pine", or "Tropical" depending on elevation and distance to coast.
     void ForestyFinish(float density)
     {
-        while (terraStorage[3].Count > 0)
+        foreach(HexInfo currTile in generalLand)
         {
-            HexInfo currTile = terraStorage[3][0];
-            terraStorage[3].RemoveAt(0);
             if (currTile.terrain.getTerraGroup() != TerrainType.TerraGroup.WATER && Random.value <= density)
             {
-                //currTile.terrain = singles.getTerrain(9); //temperate forest
-                currTile.treeCover = true;
+                currTile.treeCover = 1;
             }
         }
+    }
+
+
+    //generate rivers, which cut in between tiles
+    void RiverGeneration(int minAmount, int maxAmount, float winding)
+    {
+        int amount = Mathf.RoundToInt(minAmount + (maxAmount - minAmount) * Random.value);
+        for (int i = 0; i < amount; i++)
+        {
+            //find suitable start location for river
+            /*HexInfo startOfRiver; int indexOfSOR;
+            do
+            {
+                indexOfSOR = Mathf.FloorToInt(Random.value * generalLand.Count);
+                startOfRiver = generalLand[indexOfSOR];
+            } while (startOfRiver.terrain.getTerraGroup() != TerrainType.TerraGroup.WATER);*/
+            HexInfo startOfRiver = hexGrid[35, 35];
+
+            //find suitable starting direction
+            Debug.Log(startOfRiver);
+            List<int> suitableIndicies = new List<int>();
+            HexInfo[] neighbors = startOfRiver.GetNeighbors();
+            for (int n = 0; n < neighbors.Length; n++)
+            {
+                HexInfo neigh = neighbors[n];
+                if (neigh.elevation <= startOfRiver.elevation)
+                {
+                    suitableIndicies.Add(n);
+                }
+            }
+
+            int chosen = Mathf.FloorToInt(Random.value * suitableIndicies.Count);
+            int len = riverJunction(startOfRiver, suitableIndicies[chosen], winding);
+            Debug.Log("river length - " + len);
+        }
+    }
+
+    //given a "source tile" and a direction, build this section of the river (and prepare for the next one?)
+    int riverJunction(HexInfo source, int direction, float winding)
+    {
+        HexInfo[] neighbors = source.GetNeighbors();
+        (HexInfo s1, int d1) choice1 = (null, 0);
+        (HexInfo s2, int d2) choice2 = (null, 0);
+
+        //first, build the river at this junction. also figure out where you can go next.
+        switch (direction)
+        {
+            case 0:
+                neighbors[0].rivers.Add(2);
+                neighbors[1].rivers.Add(5);
+                choice1 = (neighbors[0], 1);
+                choice2 = (neighbors[1], 5);
+                break;
+            case 1:
+                neighbors[1].rivers.Add(3);
+                neighbors[2].rivers.Add(0);
+                choice1 = (neighbors[2], 0);
+                choice2 = (neighbors[1], 2);
+                break;
+            case 2:
+                neighbors[2].rivers.Add(4);
+                neighbors[3].rivers.Add(1);
+                choice1 = (neighbors[3], 1);
+                choice2 = (neighbors[2], 3);
+                break;
+            case 3:
+                neighbors[3].rivers.Add(5);
+                neighbors[4].rivers.Add(2);
+                choice1 = (neighbors[4], 2);
+                choice2 = (neighbors[3], 4);
+                break;
+            case 4:
+                neighbors[4].rivers.Add(0);
+                neighbors[5].rivers.Add(3);
+                choice1 = (neighbors[5], 3);
+                choice2 = (neighbors[4], 5);
+                break;
+            case 5:
+                neighbors[5].rivers.Add(1);
+                neighbors[0].rivers.Add(4);
+                choice1 = (neighbors[5], 0);
+                choice2 = (neighbors[0], 4);
+                break;
+            default:
+                Debug.Log("River not found");
+                break;
+        }
+
+        //next, decide the next direction to go
+        HexInfo target = neighbors[direction].GetNeighbors()[(direction + 1) % 6];
+
+        //if target is water, immediately stop here
+        if(target.terrain.getTerraGroup() == TerrainType.TerraGroup.WATER)
+        {
+            return 0;
+        }
+
+        //if target's elevation <= source, we can go either direction.
+        if(target.elevation <= source.elevation)
+        {
+            if (Random.value < 0.5) return 1 + riverJunction(choice1.s1, choice1.d1, winding);
+            else return 1 + riverJunction(choice2.s2, choice2.d2, winding);
+        } 
+        //otherwise, verify if the paths actually work
+        else
+        {
+            HexInfo target1 = null, target2 = null;
+            if(choice1.s1.elevation <= source.elevation)
+            {
+                target1 = choice1.s1.GetNeighbors()[choice1.d1].GetNeighbors()[(choice1.d1 + 1) % 6];
+            } 
+            if(choice2.s2.elevation <= source.elevation)
+            {
+                target2 = choice2.s2.GetNeighbors()[choice2.d2].GetNeighbors()[(choice2.d2 + 1) % 6];
+            }
+
+            //choose the one that is further away, MAYBE the one that isn't a dead end?
+            if (target1 != null && target2 != null)
+            {
+                //DECIDE
+                float dist1 = target1.getDistanceApprox(source);
+                float dist2 = target2.getDistanceApprox(source);
+
+                //equal distance, random
+                if(dist1 == dist2)
+                {
+                    if (Random.value < 0.5) return 1 + riverJunction(choice1.s1, choice1.d1, winding);
+                    else return 1 + riverJunction(choice2.s2, choice2.d2, winding);
+                } 
+                //dist1 is closer
+                else if(dist1 < dist2)
+                {
+                    if (Random.value < winding) return 1 + riverJunction(choice1.s1, choice1.d1, winding);
+                    else return 1 + riverJunction(choice2.s2, choice2.d2, winding);
+                }
+                //dist2 is closer
+                else
+                {
+                    if (Random.value > winding) return 1 + riverJunction(choice1.s1, choice1.d1, winding);
+                    else return 1 + riverJunction(choice2.s2, choice2.d2, winding);
+                }
+            }
+
+            //choose the one that actually works
+            else if (target1 != target2)
+            {
+                if(target1 != null) return 1 + riverJunction(choice1.s1, choice1.d1, winding);
+                else return 1 + riverJunction(choice2.s2, choice2.d2, winding);
+            }
+
+            //stop the river here, nothing works
+            else
+            {
+                return 0;
+            }
+        }
+
+
     }
 
     // ---------------------------

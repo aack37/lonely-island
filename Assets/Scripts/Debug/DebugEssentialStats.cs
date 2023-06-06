@@ -18,11 +18,25 @@ public class DebugEssentialStats : MonoBehaviour
         hover.text = "Hovering: " + "NONE";
         select.text = "Selected: " + "NONE";
 
+        //top left GUI - new world seed
         TerrainGen.regenerateWorld += GUINewWorld;
+
+        //top left GUI - new tile hovered or selected
         TileClicker.tileHover += GUINewHoverTile;
         TileClicker.tileSelected += GUINewSelectedTile;
-        TileClicker.tileSelected += DispSelectedTileStats;
         OceanHexFinder.oceanTileSelected += GUINewSelectedTile;
+        OceanHexFinder.oceanTileHover += GUINewHoverTile;
+
+        //bottom left GUI - display tile information
+        TileClicker.tileSelected += DispSelectedTileStats;
+        OceanHexFinder.oceanTileSelected += DispSelectedTileStats;
+        WorldMapManager.deselect += onDeselection;
+    }
+
+    void onDeselection()
+    {
+        select.text = "Selected: NONE";
+        selectedFullStats.text = "No tile selected";
     }
 
     void GUINewWorld(int newWorldSeed)
@@ -33,6 +47,11 @@ public class DebugEssentialStats : MonoBehaviour
     void GUINewHoverTile(HexTile ht)
     {
         hover.text = "Hovering: " + ht.hexInfo;
+    }
+
+    void GUINewHoverTile(HexInfo ht)
+    {
+        hover.text = "Hovering: " + ht;
     }
 
     void GUINewSelectedTile(HexTile ht)
@@ -47,7 +66,12 @@ public class DebugEssentialStats : MonoBehaviour
 
     void DispSelectedTileStats(HexTile ht)
     {
-        string tempStr = ""; HexInfo hs = ht.hexInfo;
+        DispSelectedTileStats(ht.hexInfo);
+    }
+
+    void DispSelectedTileStats(HexInfo hs)
+    {
+        string tempStr = "";
         tempStr = tempStr + "SELECTED ---> " + hs + "\n";
         tempStr = tempStr + "Terrain: " + hs.terrain + "\n";
         tempStr = tempStr + "Tree Cover: " + hs.treeCover + "\n";
@@ -55,7 +79,7 @@ public class DebugEssentialStats : MonoBehaviour
         tempStr = tempStr + "Ocean Coastal: " + hs.isOceanCoastal + "\n";
         tempStr = tempStr + "Lake Coastal: " + hs.isLakeCoastal + "\n";
         tempStr = tempStr + "Natural Features: ";
-        foreach(int feat in hs.inNaturalFeatures)
+        foreach (int feat in hs.inNaturalFeatures)
         {
             tempStr = tempStr + feat + ",";
         }

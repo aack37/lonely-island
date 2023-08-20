@@ -873,9 +873,16 @@ public class TerrainGen : MonoBehaviour
                 }
             }
 
-            int chosen = Mathf.FloorToInt(Random.value * suitableIndicies.Count);
-            int len = riverJunction(startOfRiver, suitableIndicies[chosen], winding);
-            Debug.Log("river length - " + len);
+            if (suitableIndicies.Count == 0)
+            {
+                Debug.Log("The river could not be generated!");
+            }
+            else
+            {
+                int chosen = Mathf.FloorToInt(Random.value * suitableIndicies.Count);
+                int len = riverJunction(startOfRiver, suitableIndicies[chosen], winding);
+                Debug.Log("river length - " + len);
+            }
         }
     }
 
@@ -939,6 +946,9 @@ public class TerrainGen : MonoBehaviour
             return 0;
         }
 
+        if (Random.value < 0.5) return 1 + riverJunction(choice1.s1, choice1.d1, winding);
+        else return 1 + riverJunction(choice2.s2, choice2.d2, winding);
+        /*
         //if target's elevation <= source, we can go either direction.
         if(target.elevation <= source.elevation)
         {
@@ -998,7 +1008,7 @@ public class TerrainGen : MonoBehaviour
                 return 0;
             }
         }
-
+        */
 
     }
 

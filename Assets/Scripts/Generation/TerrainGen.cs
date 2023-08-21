@@ -1042,20 +1042,43 @@ public class TerrainGen : MonoBehaviour
 
     async Task buildNewTile(int i, int j, int zStarter)
     {
-        if(hexGrid[i,j].terrain.getTerrainID() != 2) //don't bother creating ocean tiles anymore. that ship is sailed ;)
+        if (hexGrid[i, j].terrain.getTerrainID() != 2) //don't bother creating ocean tiles anymore. that ship is sailed ;)
         {
-            GameObject g = Instantiate(hexTile);
+            GameObject g;
+            
+            if(hexGrid[i,j].rivers.Count == 0)
+            {
+                g = Instantiate(hexTile);
+            } else
+            {
+                string rivs = "RiverModels\\";
+                HexInfo currHex = hexGrid[i, j];
+                for (int riv = 0; riv < 6; riv++)
+                {
+                    if(currHex.rivers.Contains(riv)) rivs = rivs + riv;
+                }
+                GameObject model = Resources.Load(rivs) as GameObject;
+                g = Instantiate(model);
+
+                //move the model down to y=-0.1
+                g.transform.GetChild(0).transform.position += new Vector3(0, -0.1f, 0);
+            }
+            //g = Instantiate(hexTile);
+
             //all new tiles are parents of the empty terrainGen object.
             g.transform.parent = container.transform;
+            g.transform.rotation = Quaternion.Euler(0, 180, 0);
+
             HexTile ht = g.GetComponent<HexTile>();
 
             ht.hexInfo = hexGrid[i, j];
-            hexGrid[i,j] = await ht.readyToGo(); //some properties change in the final build!
-        } else
+            hexGrid[i, j] = await ht.readyToGo(); //some properties change in the final build!
+        }
+        else
         {
             await Task.Yield();
         }
-        
+
     }
 
     void lakeElevation() //find elevation of all lakes on the map

@@ -87,11 +87,69 @@ public class HexTile : MonoBehaviour
                 bottomMat.color = hexInfo.terrain.getColor();
             }
 
+
+
+            //adjust river height
+            foreach (int riv in hexInfo.rivers)
+            {
+                float neighElev = TerrainGen.getStep(hexInfo.GetNeighbors()[riv].elevation);
+                float diff = hexInfo.elevation - neighElev;
+                Vector3 pos = Vector3.zero;
+
+                //first, must find the actual correct river object
+                string lookForRiv = "";
+                switch(riv)
+                {
+                    case 0: lookForRiv = "N"; break;
+                    case 1: lookForRiv = "NE"; break;
+                    case 2: lookForRiv = "SE"; break;
+                    case 3: lookForRiv = "S"; break;
+                    case 4: lookForRiv = "SW"; break;
+                    case 5: lookForRiv = "NW"; break;
+                }
+
+                int r = 0;
+                for(r = 1; r < transform.childCount; r++)
+                {
+                    string temp = transform.GetChild(r).name;
+                    int mindex = Mathf.Min(2, temp.Length);
+                    temp = temp.Substring(0, mindex);
+                    if (temp.Length > 1 && (temp[1] < 65 || temp[1] > 90)) temp = temp.Substring(0,1);
+
+                    if (temp == lookForRiv)
+                    {
+                        //with it found, now you can change it
+                        pos = transform.GetChild(r).localPosition;
+                        if (diff > 0)
+                        {
+                            pos.y -= diff;
+                        }
+                        else
+                        {
+                            pos.y = 0;
+                        }
+                        break;
+                    }
+                }
+                if (r == transform.childCount) Debug.Log("RIVER NAME NOT FOUND: " + lookForRiv + " at tile: " + hexInfo);
+                else {
+                    float minHeight = Mathf.Min(hexInfo.elevation, neighElev);
+                    pos.y += minHeight / 2.0f;
+
+                    // lastly, modify the "height" of the rivers
+                    transform.GetChild(r).localPosition = pos;
+                    Vector3 scaleMod = transform.GetChild(r).localScale;
+                    scaleMod.z = minHeight;
+                    transform.GetChild(r).localScale = scaleMod;
+                }
+                
+            }
+            /* // RIVERS DEBUG
             if (hexInfo.rivers.Count > 0)
             {
                 if(topMat != null) topMat.color = Color.red;
                 bottomMat.color = Color.red;
-            }
+            }*/
 
             //the last step is making trees, if applicable.
             if (hexInfo.treeCover != 0)
